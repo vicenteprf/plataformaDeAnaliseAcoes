@@ -1,7 +1,9 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+
+import { supabase } from "../../lib/supabase";
 
 export default function Cadastro() {
   const [dadosCadastro, setDadosCadastro] = useState({
@@ -9,6 +11,9 @@ export default function Cadastro() {
     email: "",
     password: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const { value, name } = event.target;
@@ -19,10 +24,43 @@ export default function Cadastro() {
     });
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setErrorMessage("");
 
-    console.log(dadosCadastro);
+    // Validação básica
+    if (
+      !dadosCadastro.name ||
+      !dadosCadastro.email ||
+      !dadosCadastro.password
+    ) {
+      setErrorMessage("Preencha todos os campos.");
+      return;
+    }
+
+    if (dadosCadastro.password.length < 8) {
+      setErrorMessage("A senha deve ter pelo menos 8 caracteres.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const { error } = await supabase.auth.signUp({
+      email: dadosCadastro.email,
+      password: dadosCadastro.password,
+      options: {
+        data: { name: dadosCadastro.name },
+      },
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      setErrorMessage("Erro ao criar conta. Tente novamente.");
+      return;
+    }
+
+    navigate("/login");
   }
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#050816] px-4 shadow-[0_0_20px_rgba(59,130,246,0.10)]">
@@ -118,8 +156,20 @@ export default function Cadastro() {
                 </span>
               </label>
 
-              <button className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white cursor-pointer ">
-                Cadastrar
+              {errorMessage && (
+                <p className="text-red-400 text-sm text-center py-2">
+                  {errorMessage}
+                </p>
+              )}
+
+              
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white cursor-pointer "
+              >
+                {isLoading ? "Cadastrando..." : "Cadastrar"}
               </button>
 
               <p className="text-center text-sm text-zinc-500 p-2">

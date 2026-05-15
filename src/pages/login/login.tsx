@@ -1,13 +1,18 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+
+import { supabase } from "../../lib/supabase";
 
 export default function Login() {
   const [dados, setDados] = useState({
     email: "",
     password: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const { value, name } = event.target;
@@ -18,10 +23,30 @@ export default function Login() {
     });
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setErrorMessage("");
 
-    console.log(dados);
+    if (!dados.email || !dados.password) {
+      setErrorMessage("Preencha todos os campos.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: dados.email,
+      password: dados.password,
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      setErrorMessage("Email ou senha incorretos.");
+      return;
+    }
+
+    navigate("/home");
   }
 
   return (
@@ -98,8 +123,18 @@ export default function Login() {
                 </Link>
               </div>
 
-              <button className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white cursor-pointer ">
-                Entrar
+              {errorMessage && (
+                <p className="text-red-400 text-sm text-center py-2">
+                  {errorMessage}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full rounded-xl bg-blue-600 py-3 font-semibold text-white cursor-pointer "
+              >
+                {isLoading ? "Entrando..." : "Entrar"}
               </button>
 
               <p className="text-center text-sm text-zinc-500 p-2">
