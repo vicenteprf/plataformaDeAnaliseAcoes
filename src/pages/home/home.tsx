@@ -1,6 +1,29 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { fetchStocks } from "../../service/stockService";
+import type { Stock } from "../../types/stock";
+
 export default function Home() {
+  const [stock, setStock] = useState<Stock[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadStocks() {
+      try {
+        const data = await fetchStocks();
+        setStock(data);
+      } catch (error) {
+        setError("Erro ao carregar as ações.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadStocks();
+  }, []);
+
   return (
     <main className="min-h-screen bg-[#050816] text-white">
       <header className="border-b border-zinc-900 bg-[#070B17]">
@@ -128,24 +151,58 @@ export default function Home() {
                 </thead>
 
                 <tbody>
-                  <tr className=" border-b border-zinc-900 hover:bg-[#111827]">
-                    <td className="p-4">
-                      <div>
-                        <h3 className="font-semibold">PERT4</h3>
-                        <p className="text-sm text-zinc-500">Petrobras PN</p>
-                      </div>
-                    </td>
+                  {isLoading && (
+                    <tr>
+                      <td colSpan={4} className="p-4 text-center text-zinc-500">
+                        Carregando...
+                      </td>
+                    </tr>
+                  )}
+                  {error && (
+                    <tr>
+                      <td colSpan={4} className="p-4 text-center-text-red-400">
+                        {error}
+                      </td>
+                    </tr>
+                  )}
+                  {stock.map((s) => (
+                    <tr
+                      key={s.symbol}
+                      className=" border-b border-zinc-900 hover:bg-[#111827]"
+                    >
+                      <td className="p-4">
+                        <div>
+                          <h3 className="font-semibold">{s.symbol}</h3>
+                          <p className="text-sm text-zinc-500">{s.shortName}</p>
+                        </div>
+                      </td>
 
-                    <td className="font-semibold">R$ 38,42</td>
+                      <td className="font-semibold">
+                        R$ {s.regularMarketPrice.toFixed(2)}
+                      </td>
 
-                    <td>
-                      <span className="rounded-full bg-lime-500/10 px-3 py-1 text-sm text-lime-400">
-                        +2,14%
-                      </span>
-                    </td>
+                      <td>
+                        <span
+                          className={`rounded-full px-3 py-1 text-sm ${s.regularMarketChangePercent >= 0 ? "bg-lime-500/10 text-lime-400" : "bg-red-500/10 text-red-400"}`}
+                        >
+                          {s.regularMarketChangePercent >= 0 ? "+" : "-"}{" "}
+                          {s.regularMarketChangePercent.toFixed(2)}
+                        </span>
+                      </td>
 
-                    <td className="text-lime-400">14,2%</td>
-                  </tr>
+                      <td
+                        className={
+                          s.dividendYield && s.dividendYield > 0
+                            ? "text-lime-400"
+                            : "text-zinc-500"
+                        }
+                      >
+                        {s.dividendYield
+                          ? `${s.dividendYield.toFixed(2)}%`
+                          : "-"}{" "}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
