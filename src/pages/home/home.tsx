@@ -1,19 +1,31 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import { supabase } from "../../lib/supabase";
 
 import { fetchStocks } from "../../service/stockService";
 import type { Stock } from "../../types/stock";
+import { fetchMarketData } from "../../service/stockService";
+import type { MarketData } from "../../service/stockService";
+
+import { FiLogOut } from "react-icons/fi";
 
 export default function Home() {
   const [stock, setStock] = useState<Stock[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [marketData, setMarketData] = useState<MarketData | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadStocks() {
       try {
-        const data = await fetchStocks();
-        setStock(data);
+        const [stockData, market] = await Promise.all([
+          fetchStocks(),
+          fetchMarketData(),
+        ]);
+        setStock(stockData);
+        setMarketData(market);
       } catch (error) {
         setError("Erro ao carregar as ações.");
       } finally {
@@ -23,6 +35,11 @@ export default function Home() {
 
     loadStocks();
   }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate("/login");
+  }
 
   return (
     <main className="min-h-screen bg-[#050816] text-white">
@@ -57,8 +74,11 @@ export default function Home() {
               Criar alerta
             </button>
 
-            <div className="flex h-10 w-10 items-center justify-center roundend-full bg-purple-600 font-semibold">
-              JD
+            <div
+              onClick={handleLogout}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0F172A] border border-zinc-800 text-zinc-400 hover:bg-red-900/30 hover:text-red-400 hover:border-red-800 transition cursor-pointer"
+            >
+              <FiLogOut size={18} />
             </div>
           </div>
         </div>
@@ -71,21 +91,31 @@ export default function Home() {
               IBOVESPA
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-lime-400">127.842</h2>
+            <h2 className="mt-2 text-3xl font-bold text-lime-400">
+              {marketData?.ibovespa.toLocaleString("pt-BR") ?? "..."}
+            </h2>
           </div>
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Variação hoje
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-lime-400">+1,34%</h2>
+            <h2 className="mt-2 text-3xl font-bold text-lime-400">
+              {marketData
+                ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData.ibovespaChange.toFixed(2)}%`
+                : "..."}
+            </h2>
           </div>
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Vol. negociado
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold">R$ 29,4B</h2>
+            <h2 className="mt-2 text-3xl font-bold">
+              {marketData
+                ? `R$ ${(marketData.volume / 1e9).toFixed(1)}B`
+                : "..."}
+            </h2>
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
@@ -93,7 +123,9 @@ export default function Home() {
               Dólar (USD)
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-red-400">R$ 5,18</h2>
+            <h2 className="mt-2 text-3xl font-bold text-red-400">
+              R$ {marketData?.dolar.toFixed(2) ?? "..."}
+            </h2>
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
@@ -101,7 +133,7 @@ export default function Home() {
               Selic
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold ">10,75%</h2>
+            <h2 className="mt-2 text-3xl font-bold ">13,75%</h2>
           </div>
         </section>
 
@@ -167,8 +199,9 @@ export default function Home() {
                   )}
                   {stock.map((s) => (
                     <tr
+                      onClick={() => navigate(`/detalhes/${s.symbol}`)}
                       key={s.symbol}
-                      className=" border-b border-zinc-900 hover:bg-[#111827]"
+                      className=" border-b border-zinc-900 hover:bg-[#111827] cursor-pointer"
                     >
                       <td className="p-4">
                         <div>

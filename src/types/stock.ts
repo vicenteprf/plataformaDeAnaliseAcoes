@@ -5,3 +5,5 @@ export interface Stock {
   regularMarketChangePercent: number;
   dividendYield: number | null;
 }
+
+

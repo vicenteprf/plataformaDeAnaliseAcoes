@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path={"/cadastro"} element={<Cadastro />} />
           <Route element={<Private />}>
             <Route path={"/home"} element={<Home />} />
-            <Route path={"/detalhes"} element={<Detalhes />} />
+            <Route path={"/detalhes/:ticker"} element={<Detalhes />} />
             <Route path={"/minhasacoes"} element={<MinhasAcoes />} />
           </Route>
         </Routes>
