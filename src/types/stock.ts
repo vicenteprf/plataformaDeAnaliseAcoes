@@ -26,3 +26,14 @@ export interface Stock {
     volume: number;
   }[];
 }
+
+export interface Alert {
+  id: string;
+  user_id: string;
+  ticker: string;
+  target_price: number;
+  type: "above" | "below";
+  email: string;
+  active: boolean;
+  created_at: string;
+}

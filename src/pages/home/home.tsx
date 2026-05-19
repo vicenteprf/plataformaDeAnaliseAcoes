@@ -7,7 +7,7 @@ import {
   fetchStocks,
   fetchMarketData,
   fetchFavorites,
-  addFovorite,
+  addFavorite,
   removeFavorite,
 } from "../../service/stockService";
 import type { Stock } from "../../types/stock";
@@ -106,7 +106,7 @@ export default function Home() {
               IBOVESPA
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-lime-400">
+            <h2 className="mt-2 text-3xl font-bold text-white">
               {marketData?.ibovespa.toLocaleString("pt-BR") ?? "..."}
             </h2>
           </div>
@@ -115,7 +115,9 @@ export default function Home() {
               Variação hoje
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-lime-400">
+            <h2
+              className={`mt-2 text-3xl font-bold ${marketData?.ibovespaChange !== undefined && marketData.ibovespaChange >= 0 ? "text-lime-400" : "text-red-400"}`}
+            >
               {marketData
                 ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData.ibovespaChange.toFixed(2)}%`
                 : "..."}

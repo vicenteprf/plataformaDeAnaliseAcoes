@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
 import {
@@ -10,16 +10,25 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import { fetchStockDetail } from "../../service/stockService";
+import { fetchStockDetail, createAlert } from "../../service/stockService";
 import type { Stock } from "../../types/stock";
 import { supabase } from "../../lib/supabase";
+
+import { AuthContext } from "../../Context/AuthContext";
 
 export default function Detalhes() {
   const [stock, setStock] = useState<Stock | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [range, setRange] = useState<string>("1mo");
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [targetPrice, setTargetPrice] = useState("");
+  const [alertType, setAlertType] = useState<"above" | "below">("below");
+  const [alertEmail, setAlertEmail] = useState("");
+  const [alertLoading, setAlertLoading] = useState(false);
+  const [alertSuccess, setAlertSuccess] = useState(false);
   const { ticker } = useParams<{ ticker: string }>();
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,9 +46,24 @@ export default function Detalhes() {
     loadDetail();
   }, [ticker, range]);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    navigate("/login");
+  async function handleCreateAlert() {
+    if (!user || !targetPrice) return;
+    setAlertLoading(true);
+
+    await createAlert(
+      user.id,
+      ticker!,
+      parseFloat(targetPrice),
+      alertType,
+      alertEmail,
+    );
+
+    setAlertLoading(false);
+    setAlertSuccess(true);
+    setTimeout(() => {
+      setShowAlertModal(false);
+      setAlertSuccess(false);
+    }, 2000);
   }
 
   const formatMarketCap = (value: number) => {
@@ -64,14 +88,17 @@ export default function Detalhes() {
             </button>
           </div>
 
-          <h1 className="text-2xl font-bold">
+          <Link to="/home" className="text-2xl font-bold">
             Stock <span className="text-blue-500">Vault</span>
-          </h1>
+          </Link>
 
           {/* LADO DIREITO */}
 
           <div className="flex items-center gap-4">
-            <button className="rounded-xl border border-zinc-800 bg-[#0F172A] px-4 py-2 text-zinc-300 transition hover:bg-[#162033] cursor-pointer">
+            <button
+              onClick={() => setShowAlertModal(true)}
+              className="rounded-xl border border-zinc-800 bg-[#0F172A] px-4 py-2 text-zinc-300 transition hover:bg-[#162033] cursor-pointer"
+            >
               {" "}
               Criar alerta
             </button>
@@ -319,6 +346,84 @@ export default function Detalhes() {
           </>
         )}
       </div>
+
+      {showAlertModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#0B1020] border border-zinc-800 rounded-2xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold">Criar alerta — {ticker}</h2>
+              <button
+                onClick={() => setShowAlertModal(false)}
+                className="text-zinc-500 hover:text-white cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {alertSuccess ? (
+              <p className="text-center text-lime-400 py-4">
+                ✅ Alerta criado com sucesso!
+              </p>
+            ) : (
+              <>
+                <div className="mb-4">
+                  <label className="form-label block text-sm text-zinc-400 mb-2">
+                    Tipo de alerta
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setAlertType("below")}
+                      className={`flex-1 py-2 rounded-xl text-sm font-semibold cursor-pointer ${alertType === "below" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400"}`}
+                    >
+                      📉 Preço abaixo de
+                    </button>
+                    <button
+                      onClick={() => setAlertType("above")}
+                      className={`flex-1 py-2 rounded-xl text-sm font-semibold cursor-pointer ${alertType === "above" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400"}`}
+                    >
+                      📈 Preço acima de
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm text-zinc-400 mb-2">
+                    Preço alvo (R$)
+                  </label>
+                  <input
+                    type="number"
+                    value={targetPrice}
+                    onChange={(e) => setTargetPrice(e.target.value)}
+                    placeholder={`Atual: R$ ${stock?.regularMarketPrice.toFixed(2)}`}
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm text-zinc-400 mb-2">
+                    E-mail para notificação
+                  </label>
+                  <input
+                    type="email"
+                    value={alertEmail}
+                    onChange={(e) => setAlertEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                    className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <button
+                  onClick={handleCreateAlert}
+                  disabled={alertLoading}
+                  className="w-full bg-blue-600 py-3 rounded-xl font-semibold text-white cursor-pointer disabled:opacity-50"
+                >
+                  {alertLoading ? "Criando..." : "🔔 Ativar alerta"}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -79,7 +79,7 @@ export async function fetchFavorites(userId: string): Promise<string[]> {
 }
 
 // Adicionar favorito
-export async function addFovorite(
+export async function addFavorite(
   userId: string,
   ticker: string,
 ): Promise<void> {
@@ -96,4 +96,37 @@ export async function removeFavorite(
     .delete()
     .eq("user_id", userId)
     .eq("ticker", ticker);
+}
+
+// Buscar alertas do usuário
+export async function fecthAlerts(userId: string) {
+  const { data } = await supabase
+    .from("alerts")
+    .select("*")
+    .eq("user_id", userId);
+
+  return data ?? [];
+}
+
+// Criar alerta
+export async function createAlert(
+  userId: string,
+  ticker: string,
+  targetPrice: number,
+  type: "above" | "below",
+  email: string,
+) {
+  await supabase.from("alerts").insert({
+    user_id: userId,
+    ticker,
+    target_price: targetPrice,
+    type,
+    email,
+    active: true,
+  });
+}
+
+// Deletar alerta
+export async function deleteAlert(alertId: string) {
+  await supabase.from("alerts").delete().eq("id", alertId);
 }
