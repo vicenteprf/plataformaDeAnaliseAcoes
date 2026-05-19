@@ -1,14 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { supabase } from "../../lib/supabase";
 
-import { fetchStocks } from "../../service/stockService";
+import {
+  fetchStocks,
+  fetchMarketData,
+  fetchFavorites,
+  addFovorite,
+  removeFavorite,
+} from "../../service/stockService";
 import type { Stock } from "../../types/stock";
-import { fetchMarketData } from "../../service/stockService";
 import type { MarketData } from "../../service/stockService";
 
+import { AuthContext } from "../../Context/AuthContext";
+
 import { FiLogOut } from "react-icons/fi";
+import { FaStar, FaRegStar } from "react-icons/fa";
 
 export default function Home() {
   const [stock, setStock] = useState<Stock[]>([]);
@@ -16,13 +24,17 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
     async function loadStocks() {
       try {
+        const favs = await fetchFavorites(user!.id);
         const [stockData, market] = await Promise.all([
           fetchStocks(),
           fetchMarketData(),
+          setFavorites(favs),
         ]);
         setStock(stockData);
         setMarketData(market);
@@ -36,9 +48,16 @@ export default function Home() {
     loadStocks();
   }, []);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    navigate("/login");
+  async function handleFavorite(ticker: string) {
+    if (!user) return;
+
+    if (favorites.includes(ticker)) {
+      await removeFavorite(user.id, ticker);
+      setFavorites((prev) => prev.filter((f) => f !== ticker));
+    } else {
+      await addFovorite(user.id, ticker);
+      setFavorites((prev) => [...prev, ticker]);
+    }
   }
 
   return (
@@ -68,19 +87,15 @@ export default function Home() {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-4">
-            <button className="rounded-xl border border-zinc-800 bg-[#0F172A] px-4 py-2 text-zinc-300 transition hover:bg-[#162033] cursor-pointer">
-              {" "}
-              Criar alerta
-            </button>
-
-            <div
-              onClick={handleLogout}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0F172A] border border-zinc-800 text-zinc-400 hover:bg-red-900/30 hover:text-red-400 hover:border-red-800 transition cursor-pointer"
-            >
-              <FiLogOut size={18} />
-            </div>
-          </div>
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              navigate("/login");
+            }}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0F172A] border border-zinc-800 text-zinc-400 hover:bg-red-900/30 hover:text-red-400 transition cursor-pointer"
+          >
+            <FiLogOut size={18} />
+          </button>
         </div>
       </header>
 
@@ -218,7 +233,7 @@ export default function Home() {
                         <span
                           className={`rounded-full px-3 py-1 text-sm ${s.regularMarketChangePercent >= 0 ? "bg-lime-500/10 text-lime-400" : "bg-red-500/10 text-red-400"}`}
                         >
-                          {s.regularMarketChangePercent >= 0 ? "+" : "-"}{" "}
+                          {s.regularMarketChangePercent >= 0 ? "+" : ""}{" "}
                           {s.regularMarketChangePercent.toFixed(2)}
                         </span>
                       </td>
@@ -234,6 +249,24 @@ export default function Home() {
                           ? `${s.dividendYield.toFixed(2)}%`
                           : "-"}{" "}
                       </td>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFavorite(s.symbol);
+                        }}
+                        className={`ml-4 cursor-pointer transition mt-6 ${
+                          favorites.includes(s.symbol)
+                            ? "text-yellow-500"
+                            : "text-zinc-600 hover:text-zinc-400"
+                        }`}
+                      >
+                        {favorites.includes(s.symbol) ? (
+                          <FaStar size={22} />
+                        ) : (
+                          <FaRegStar size={22} />
+                        )}
+                      </button>
                     </tr>
                   ))}
                 </tbody>
