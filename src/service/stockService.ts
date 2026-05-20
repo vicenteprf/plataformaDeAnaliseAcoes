@@ -9,7 +9,23 @@ export interface MarketData {
   volume: number;
 }
 
-const TICKERS = ["TAEE11", "BBAS3", "CSMG3", "BBSE3", "KLBN3"];
+const TICKERS = [
+  "TAEE4",
+  "BBAS3",
+  "CSMG3",
+  "BBSE3",
+  "KLBN4",
+  "ITSA4",
+  "SAPR4",
+  "ITUB4",
+  "BBDC4",
+  "CMIG4",
+  "CXSE3",
+  "BRSR6",
+  "SANB4",
+  "PETR4",
+  "TIMS3",
+];
 
 // Função para chamar as informações das ações
 export async function fetchStocks(): Promise<Stock[]> {
@@ -98,35 +114,14 @@ export async function removeFavorite(
     .eq("ticker", ticker);
 }
 
-// Buscar alertas do usuário
-export async function fecthAlerts(userId: string) {
-  const { data } = await supabase
-    .from("alerts")
-    .select("*")
-    .eq("user_id", userId);
+export async function searchStock(ticker: string): Promise<Stock> {
+  const token = import.meta.env.VITE_BRAPI_TOKEN;
 
-  return data ?? [];
-}
+  const response = await fetch(
+    `https://brapi.dev/api/quote/${ticker}?token=${token}`,
+  );
 
-// Criar alerta
-export async function createAlert(
-  userId: string,
-  ticker: string,
-  targetPrice: number,
-  type: "above" | "below",
-  email: string,
-) {
-  await supabase.from("alerts").insert({
-    user_id: userId,
-    ticker,
-    target_price: targetPrice,
-    type,
-    email,
-    active: true,
-  });
-}
+  const data = await response.json();
 
-// Deletar alerta
-export async function deleteAlert(alertId: string) {
-  await supabase.from("alerts").delete().eq("id", alertId);
+  return data.results[0];
 }

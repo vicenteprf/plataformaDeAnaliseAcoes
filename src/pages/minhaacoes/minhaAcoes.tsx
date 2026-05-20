@@ -124,13 +124,7 @@ export default function MinhasAcoes() {
               {favorites.length}
             </h2>
           </div>
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">
-              alertas ativos
-            </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-lime-400">-</h2>
-          </div>
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               em alta hoje
@@ -151,14 +145,23 @@ export default function MinhasAcoes() {
 
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
-              alertas disparados
+              Dólar (USD)
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold ">-</h2>
+            <h2 className="mt-2 text-3xl font-bold text-white">
+              R$ {marketData?.dolar.toFixed(2) ?? "..."}
+            </h2>
+          </div>
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+            <p className="text-xs uppercase tracking-wide text-zinc-500">
+              Selic
+            </p>
+
+            <h2 className="mt-2 text-3xl font-bold">13,75%</h2>
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="mt-6 grid grid-cols-1 gap-6">
           <section className="rounded-2xl border border-zinc-800 bg-[#0B1020]">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -169,7 +172,6 @@ export default function MinhasAcoes() {
                     <th>Preço</th>
                     <th>Variação</th>
                     <th>Alerta</th>
-                    <th>Ação</th>
                   </tr>
                 </thead>
 

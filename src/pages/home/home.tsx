@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, type ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { supabase } from "../../lib/supabase";
@@ -9,6 +9,7 @@ import {
   fetchFavorites,
   addFavorite,
   removeFavorite,
+  searchStock,
 } from "../../service/stockService";
 import type { Stock } from "../../types/stock";
 import type { MarketData } from "../../service/stockService";
@@ -23,6 +24,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [marketData, setMarketData] = useState<MarketData | null>(null);
+  const [filter, setFilter] = useState("");
+  const [visibleCount, setVisibleCount] = useState(5);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -34,9 +37,8 @@ export default function Home() {
         const [stockData, market] = await Promise.all([
           fetchStocks(),
           fetchMarketData(),
-          setFavorites(favs),
         ]);
-        setStock(stockData);
+        (setFavorites(favs), setStock(stockData));
         setMarketData(market);
       } catch (error) {
         setError("Erro ao carregar as ações.");
@@ -48,6 +50,29 @@ export default function Home() {
     loadStocks();
   }, []);
 
+  function handleFilter(e: ChangeEvent<HTMLInputElement>) {
+    setFilter(e.target.value);
+  }
+
+  async function handleSearch() {
+    try {
+      if (!filter.trim()) return;
+
+      const data = await searchStock(filter.trim().toUpperCase());
+
+      if (!data) {
+        setError("Ação não encontrada.");
+        return;
+      }
+
+      setError(null);
+      setStock([data]);
+    } catch (e) {
+      setError("Erro ao buscar ação.");
+      console.log(e);
+    }
+  }
+
   async function handleFavorite(ticker: string) {
     if (!user) return;
 
@@ -55,7 +80,7 @@ export default function Home() {
       await removeFavorite(user.id, ticker);
       setFavorites((prev) => prev.filter((f) => f !== ticker));
     } else {
-      await addFovorite(user.id, ticker);
+      await addFavorite(user.id, ticker);
       setFavorites((prev) => [...prev, ticker]);
     }
   }
@@ -140,7 +165,7 @@ export default function Home() {
               Dólar (USD)
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-red-400">
+            <h2 className="mt-2 text-3xl font-bold text-white">
               R$ {marketData?.dolar.toFixed(2) ?? "..."}
             </h2>
           </div>
@@ -154,17 +179,23 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
+        <div className="mt-6 grid grid-cols-1 gap-6 ">
           <section className="rounded-2xl border border-zinc-800 bg-[#0B1020]">
             <div className="border-b border-zinc-800 p-4">
               <div className="flex flex-col gap-4 md:flex-row">
                 <input
                   type="text"
+                  name="text"
                   placeholder="Buscar ação, ticker ou empresa..."
                   className="h-12 flex-1 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-white outline-none focus:border-blue-500"
+                  onChange={handleFilter}
+                  value={filter}
                 />
 
-                <button className="rounded-xl border border-zinc-700 bg-[#111827] px-5 text-sm text-zinc-300 cursor-pointer">
+                <button
+                  onClick={handleSearch}
+                  className="rounded-xl border border-zinc-700 bg-[#111827] px-5 text-sm text-zinc-300 cursor-pointer font-bold hover:bg-blue-600"
+                >
                   Filtrar
                 </button>
               </div>
@@ -195,7 +226,7 @@ export default function Home() {
                     <th className="p-4">Empresa</th>
                     <th>Preço</th>
                     <th>Variação</th>
-                    <th>Dy Ano</th>
+                    <th>Favorito</th>
                   </tr>
                 </thead>
 
@@ -214,7 +245,7 @@ export default function Home() {
                       </td>
                     </tr>
                   )}
-                  {stock.map((s) => (
+                  {stock.slice(0, visibleCount).map((s) => (
                     <tr
                       onClick={() => navigate(`/detalhes/${s.symbol}`)}
                       key={s.symbol}
@@ -235,92 +266,50 @@ export default function Home() {
                         <span
                           className={`rounded-full px-3 py-1 text-sm ${s.regularMarketChangePercent >= 0 ? "bg-lime-500/10 text-lime-400" : "bg-red-500/10 text-red-400"}`}
                         >
-                          {s.regularMarketChangePercent >= 0 ? "+" : ""}{" "}
+                          {s.regularMarketChangePercent >= 0 ? "+" : " "}{" "}
                           {s.regularMarketChangePercent.toFixed(2)}
                         </span>
                       </td>
 
-                      <td
-                        className={
-                          s.dividendYield && s.dividendYield > 0
-                            ? "text-lime-400"
-                            : "text-zinc-500"
-                        }
-                      >
-                        {s.dividendYield
-                          ? `${s.dividendYield.toFixed(2)}%`
-                          : "-"}{" "}
+                      <td>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleFavorite(s.symbol);
+                          }}
+                          className={`ml-4 cursor-pointer transition mt-6 ${
+                            favorites.includes(s.symbol)
+                              ? "text-yellow-500"
+                              : "text-zinc-600 hover:text-zinc-400"
+                          }`}
+                        >
+                          {favorites.includes(s.symbol) ? (
+                            <FaStar size={22} />
+                          ) : (
+                            <FaRegStar size={22} />
+                          )}
+                        </button>
                       </td>
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleFavorite(s.symbol);
-                        }}
-                        className={`ml-4 cursor-pointer transition mt-6 ${
-                          favorites.includes(s.symbol)
-                            ? "text-yellow-500"
-                            : "text-zinc-600 hover:text-zinc-400"
-                        }`}
-                      >
-                        {favorites.includes(s.symbol) ? (
-                          <FaStar size={22} />
-                        ) : (
-                          <FaRegStar size={22} />
-                        )}
-                      </button>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <div className="flex justify-center p-4">
+                {visibleCount < stock.length && (
+                  <button
+                    onClick={() =>
+                      setVisibleCount((prev) =>
+                        Math.min(prev + 5, stock.length),
+                      )
+                    }
+                    className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-blue-700 transition"
+                  >
+                    Carregar mais
+                  </button>
+                )}
+              </div>
             </div>
           </section>
-
-          {/* RIGHT SIDEBAR */}
-          <aside className="space-y-6">
-            {/* ALTAS */}
-            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
-              <h2 className="mb-4 text-sm font-semibold uppercase text-zinc-400">
-                Maiores altas
-              </h2>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-xl bg-[#111827] p-3">
-                  <span className="font-semibold">WEGE3</span>
-
-                  <span className="rounded-full bg-lime-500/10 px-3 py-1 text-sm text-lime-400">
-                    +3,41%
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between rounded-xl bg-[#111827] p-3">
-                  <span className="font-semibold">PETR4</span>
-
-                  <span className="rounded-full bg-lime-500/10 px-3 py-1 text-sm text-lime-400">
-                    +2,14%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* QUEDAS */}
-
-            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
-              <h2 className="mb-4 text-sm font-semibold uppercase text-zinc-400">
-                Maiores quedas
-              </h2>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-xl bg-[#111827] p-3">
-                  <span className="font-semibold">MGLU3</span>
-
-                  <span className="rounded-full bg-lime-500/10 px-3 py-1 text-sm text-red-400">
-                    -4,36%
-                  </span>
-                </div>
-              </div>
-            </div>
-          </aside>
         </div>
       </div>
     </main>

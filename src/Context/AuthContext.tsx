@@ -1,6 +1,7 @@
 import { useState, createContext, useEffect } from "react";
 import { supabase } from "./../lib/supabase";
 import type { User } from "@supabase/supabase-js";
+import { fetchStockDetail } from "../service/stockService";
 
 interface AuthContextType {
   user: User | null;
