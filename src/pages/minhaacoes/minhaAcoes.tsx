@@ -89,9 +89,9 @@ export default function MinhasAcoes() {
               Home
             </Link>
 
-            <Link className="text-sm font-medium text-white" to={"/"}>
+            <a className="text-sm font-medium text-white cursor-pointer">
               Mercado
-            </Link>
+            </a>
 
             <Link
               className="text-sm font-medium text-white"
@@ -168,7 +168,7 @@ export default function MinhasAcoes() {
                 <thead className="border-b border-zinc-800 text-left text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="p-4">Empresa</th>
-                    <th>Gráfico 7D</th>
+                    {/* <th>Gráfico 7D</th> */}
                     <th>Preço</th>
                     <th>Variação</th>
                     <th>Alerta</th>
@@ -205,7 +205,8 @@ export default function MinhasAcoes() {
                         </div>
                       </td>
 
-                      <td className="font-semibold"></td>
+                      {/* Gráfico 7D*/}
+                      {/* <td className="font-semibold"></td> */}
 
                       <td>
                         <span className="rounded-full px-3 py-1 text-sm">

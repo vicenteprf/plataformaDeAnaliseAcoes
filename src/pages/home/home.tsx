@@ -100,9 +100,9 @@ export default function Home() {
               Home
             </Link>
 
-            <Link className="text-sm font-medium text-white" to={"/"}>
+            <a className="text-sm font-medium text-white cursor-pointer">
               Mercado
-            </Link>
+            </a>
 
             <Link
               className="text-sm font-medium text-white"

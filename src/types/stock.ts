@@ -17,6 +17,8 @@ export interface Stock {
   longBusinessSummary: string;
   priceEarnings: number;
   marketCap: number;
+  fullTimeEmployees: number;
+  earningsPerShare: number;
   historicalDataPrice?: {
     date: number;
     open: number;

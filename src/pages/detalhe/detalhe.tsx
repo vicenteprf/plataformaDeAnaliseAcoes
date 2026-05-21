@@ -19,8 +19,6 @@ export default function Detalhes() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [range, setRange] = useState<string>("1mo");
-  const [showAlertModal, setShowAlertModal] = useState(false);
-  const [targetPrice, setTargetPrice] = useState("");
   const { ticker } = useParams<{ ticker: string }>();
   const navigate = useNavigate();
 
@@ -282,16 +280,16 @@ export default function Detalhes() {
                   value: `-`,
                 },
                 {
-                  label: "Margem ebitda",
-                  value: `-`,
-                },
-                {
                   label: "Valor de mercado",
                   value: formatMarketCap(stock.marketCap),
                 },
                 {
-                  label: "Lucro líquido",
-                  value: `-`,
+                  label: "Lucro por ação",
+                  value: `${stock.earningsPerShare ? stock.earningsPerShare.toFixed(2) : "-"}`,
+                },
+                {
+                  label: "Funcionários",
+                  value: `${stock.fullTimeEmployees ? stock.fullTimeEmployees.toLocaleString("pt-BR") : "-"}`,
                 },
               ].map((item) => (
                 <div
