@@ -38,9 +38,10 @@ export default function Home() {
           fetchStocks(),
           fetchMarketData(),
         ]);
-        (setFavorites(favs), setStock(stockData));
+        setFavorites(favs);
+        setStock(stockData);
         setMarketData(market);
-      } catch (error) {
+      } catch {
         setError("Erro ao carregar as ações.");
       } finally {
         setIsLoading(false);
@@ -48,7 +49,7 @@ export default function Home() {
     }
 
     loadStocks();
-  }, []);
+  }, [user]);
 
   function handleFilter(e: ChangeEvent<HTMLInputElement>) {
     setFilter(e.target.value);
@@ -175,7 +176,7 @@ export default function Home() {
               Selic
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold ">13,75%</h2>
+            <h2 className="mt-2 text-3xl font-bold ">14,50%</h2>
           </div>
         </section>
 

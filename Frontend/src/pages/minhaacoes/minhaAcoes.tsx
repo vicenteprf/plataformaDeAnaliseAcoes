@@ -40,7 +40,7 @@ export default function MinhasAcoes() {
         ]);
         setStock(stockData);
         setMarketData(market);
-      } catch (error) {
+      } catch {
         setError("Erro ao carregar as ações.");
       } finally {
         setIsLoading(false);
@@ -157,7 +157,7 @@ export default function MinhasAcoes() {
               Selic
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold">13,75%</h2>
+            <h2 className="mt-2 text-3xl font-bold">14,50%</h2>
           </div>
         </section>
 
