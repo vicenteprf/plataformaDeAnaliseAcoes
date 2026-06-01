@@ -7,9 +7,10 @@ import type { Request, Response } from "express";
 
 export async function getDetail(req: Request, res: Response) {
   const ticker = req.params.ticker as string;
+  const range = (req.query.range as string) ?? "1mo";
 
   try {
-    const data = await getStockDetail(ticker);
+    const data = await getStockDetail(ticker, range);
 
     return res.json(data);
   } catch (e) {

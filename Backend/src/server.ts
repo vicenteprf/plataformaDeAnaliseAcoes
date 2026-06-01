@@ -1,9 +1,10 @@
 import "dotenv/config";
 import express from "express";
+import router from "./routes/stockRoutes.js";
 
 const app = express();
 
-app.use(express.json());
+app.use(router);
 
 app.get("/", (req, res) => {
   return res.json({
