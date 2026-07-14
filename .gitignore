@@ -1,19 +1,8 @@
-# Dependências
-Frontend/node_modules
+node_modules/
 
+Backend/dist
 
-# Builds
-Frontend/dist
-
-
-# Variáveis de ambiente
 .env
 .env.local
-Frontend/.env
-Backend/.env
 
-# Logs
 *.log
-
-# VSCode
-.vscode
