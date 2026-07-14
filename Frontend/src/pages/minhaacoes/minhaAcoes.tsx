@@ -4,9 +4,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 
 import {
-  fetchStocks,
   fetchMarketData,
   fetchFavorites,
+  fetchStockDetail,
   addFavorite,
   removeFavorite,
 } from "../../service/stockService";
@@ -34,12 +34,14 @@ export default function MinhasAcoes() {
 
         setFavorites(favs);
 
-        const [stockData, market] = await Promise.all([
-          fetchStocks(),
-          fetchMarketData(),
-        ]);
-        setStock(stockData);
+        const market = await fetchMarketData();
         setMarketData(market);
+        const stockData = await Promise.all(
+          favs.map((ticker) => {
+            return fetchStockDetail(ticker);
+          }),
+        );
+        setStock(stockData);
       } catch {
         setError("Erro ao carregar as ações.");
       } finally {
