@@ -1,10 +1,10 @@
 # Dependências
 Frontend/node_modules
-Backend/node_modules
+
 
 # Builds
 Frontend/dist
-Backend/dist
+
 
 # Variáveis de ambiente
 .env
