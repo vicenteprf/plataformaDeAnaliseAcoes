@@ -260,7 +260,7 @@ export default function Home() {
                       </td>
 
                       <td className="font-semibold">
-                        R$ {s.regularMarketPrice.toFixed(2)}
+                        R$ {s.regularMarketPrice.toFixed(2) ?? "0,00"}
                       </td>
 
                       <td>
@@ -268,7 +268,7 @@ export default function Home() {
                           className={`rounded-full px-3 py-1 text-sm ${s.regularMarketChangePercent >= 0 ? "bg-lime-500/10 text-lime-400" : "bg-red-500/10 text-red-400"}`}
                         >
                           {s.regularMarketChangePercent >= 0 ? "+" : " "}{" "}
-                          {s.regularMarketChangePercent.toFixed(2)}
+                          {s.regularMarketChangePercent.toFixed(2) ?? "0,00"}%
                         </span>
                       </td>
 
