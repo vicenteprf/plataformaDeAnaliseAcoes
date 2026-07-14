@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import router from "./routes/stockRoutes.js";
 import cors from "cors";
+import { authMiddleware } from "./middlewares/auth.js";
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use(authMiddleware);
 
 app.use(router);
 
