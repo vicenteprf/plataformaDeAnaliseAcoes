@@ -29,40 +29,29 @@ const TICKERS = [
 
 // Função para chamar as informações das ações
 export async function fetchStocks(): Promise<Stock[]> {
-  const token = import.meta.env.VITE_BRAPI_TOKEN;
-
   const results = await Promise.all(
     TICKERS.map((ticker) =>
-      fetch(`https://brapi.dev/api/quote/${ticker}?token=${token}`)
-        .then((response) => response.json())
-        .then((data) => data.results[0]),
+      fetch(`${import.meta.env.VITE_API_URL}/stock/${ticker}`).then(
+        (response) => response.json().then((data) => data.results[0]),
+      ),
     ),
   );
-
-  console.log(results);
 
   return results;
 }
 
 // Função para chamar as informações ibovespa e dolar
 export async function fetchMarketData(): Promise<MarketData> {
-  const token = import.meta.env.VITE_BRAPI_TOKEN;
-
-  const [ibovespa, dolar] = await Promise.all([
-    fetch(`https://brapi.dev/api/quote/%5EBVSP?token=${token}`)
-      .then((response) => response.json())
-      .then((data) => data.results[0]),
-    fetch(`https://brapi.dev/api/quote/USDBRL=X?token=${token}`)
-      .then((response) => response.json())
-      .then((data) => data.results[0]),
-  ]);
+  const data = await fetch(`${import.meta.env.VITE_API_URL}/market`).then(
+    (response) => response.json(),
+  );
 
   return {
-    ibovespa: ibovespa.regularMarketPrice,
-    ibovespaChange: ibovespa.regularMarketChangePercent,
-    dolar: dolar.regularMarketPrice,
-    dolarChange: dolar.regularMarketChangePercent,
-    volume: ibovespa.regularMarketVolume,
+    ibovespa: data.ibovespa,
+    ibovespaChange: data.ibovespaChange,
+    dolar: data.dolar,
+    dolarChange: data.dolarChange,
+    volume: data.volume,
   };
 }
 
@@ -70,10 +59,8 @@ export async function fetchStockDetail(
   ticker: string,
   range: string = "1mo",
 ): Promise<Stock> {
-  const token = import.meta.env.VITE_BRAPI_TOKEN;
-
   const detail = await fetch(
-    `https://brapi.dev/api/quote/${ticker}?modules=summaryProfile&range=${range}&interval=1d&token=${token}`,
+    `${import.meta.env.VITE_API_URL}/stock/${ticker}?range=${range}&modules=summaryProfile`,
   )
     .then((response) => response.json())
     .then((data) => ({
@@ -115,10 +102,8 @@ export async function removeFavorite(
 }
 
 export async function searchStock(ticker: string): Promise<Stock> {
-  const token = import.meta.env.VITE_BRAPI_TOKEN;
-
   const response = await fetch(
-    `https://brapi.dev/api/quote/${ticker}?token=${token}`,
+    `${import.meta.env.VITE_API_URL}/stock/${ticker}`,
   );
 
   const data = await response.json();
