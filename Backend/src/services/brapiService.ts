@@ -28,5 +28,7 @@ export async function getMarketData() {
     ibovespa: ibovespaRes.data.results[0].regularMarketPrice,
     ibovespaChange: ibovespaRes.data.results[0].regularMarketChangePercent,
     dolar: parseFloat(dolarRes.data.USDBRL.bid),
+    dolarChange: parseFloat(dolarRes.data.USDBRL.pctChange),
+    volume: ibovespaRes.data.results[0].regularMarketVolume,
   };
 }
