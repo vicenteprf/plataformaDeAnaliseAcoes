@@ -133,7 +133,7 @@ export default function Home() {
             </p>
 
             <h2 className="mt-2 text-3xl font-bold text-white">
-              {marketData?.ibovespa.toLocaleString("pt-BR") ?? "..."}
+              {marketData?.ibovespa?.toLocaleString("pt-BR") ?? "..."}
             </h2>
           </div>
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
@@ -145,7 +145,7 @@ export default function Home() {
               className={`mt-2 text-3xl font-bold ${marketData?.ibovespaChange !== undefined && marketData.ibovespaChange >= 0 ? "text-lime-400" : "text-red-400"}`}
             >
               {marketData
-                ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData.ibovespaChange.toFixed(2)}%`
+                ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData?.ibovespaChange?.toFixed(2)}%`
                 : "..."}
             </h2>
           </div>
@@ -167,7 +167,7 @@ export default function Home() {
             </p>
 
             <h2 className="mt-2 text-3xl font-bold text-white">
-              R$ {marketData?.dolar.toFixed(2) ?? "..."}
+              R$ {marketData?.dolar?.toFixed(2) ?? "..."}
             </h2>
           </div>
 

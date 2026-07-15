@@ -34,6 +34,7 @@ export async function getMarket(req: Request, res: Response) {
 
     return res.json(data);
   } catch (e) {
+    console.error("Erro no getMarket:", e);
     return res.status(500).json({ error: `Error: ${e}` });
   }
 }
