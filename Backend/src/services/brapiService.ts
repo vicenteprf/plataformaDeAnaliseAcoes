@@ -51,15 +51,15 @@ export async function getMarketData() {
   // Busca ibovespa e dólar em paralelo
   const [ibovespaRes, dolarRes] = await Promise.all([
     axios.get(`https://brapi.dev/api/quote/%5EBVSP?token=${token}`),
-    axios.get("https://economia.awesomeapi.com.br/json/last/USD-BRL"),
+    axios.get(`https://brapi.dev/api/quote/USDBRL=X?token=${token}`),
   ]);
 
   // Formata o resultado e salva no cache
   const result = {
     ibovespa: ibovespaRes.data.results[0].regularMarketPrice,
     ibovespaChange: ibovespaRes.data.results[0].regularMarketChangePercent,
-    dolar: parseFloat(dolarRes.data.USDBRL.bid),
-    dolarChange: parseFloat(dolarRes.data.USDBRL.pctChange),
+    dolar: dolarRes.data.results[0].regularMarketPrice,
+    dolarChange: dolarRes.data.results[0].regularMarketChangePercent,
     volume: ibovespaRes.data.results[0].regularMarketVolume,
   };
 
