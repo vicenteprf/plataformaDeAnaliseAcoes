@@ -31,9 +31,11 @@ const TICKERS = [
 export async function fetchStocks(): Promise<Stock[]> {
   const results = await Promise.all(
     TICKERS.map((ticker) =>
-      fetch(`${import.meta.env.VITE_API_URL}/stock/${ticker}`).then(
-        (response) => response.json().then((data) => data.results[0]),
-      ),
+      fetch(`${import.meta.env.VITE_API_URL}/stock/${ticker}`, {
+        headers: {
+          "x-api-key": import.meta.env.VITE_API_KEY,
+        },
+      }).then((response) => response.json().then((data) => data.results[0])),
     ),
   );
 
@@ -42,9 +44,11 @@ export async function fetchStocks(): Promise<Stock[]> {
 
 // Função para chamar as informações ibovespa e dolar
 export async function fetchMarketData(): Promise<MarketData> {
-  const data = await fetch(`${import.meta.env.VITE_API_URL}/market`).then(
-    (response) => response.json(),
-  );
+  const data = await fetch(`${import.meta.env.VITE_API_URL}/market`, {
+    headers: {
+      "x-api-key": import.meta.env.VITE_API_KEY,
+    },
+  }).then((response) => response.json());
 
   return {
     ibovespa: data.ibovespa,
@@ -61,6 +65,11 @@ export async function fetchStockDetail(
 ): Promise<Stock> {
   const detail = await fetch(
     `${import.meta.env.VITE_API_URL}/stock/${ticker}?range=${range}&modules=summaryProfile`,
+    {
+      headers: {
+        "x-api-key": import.meta.env.VITE_API_KEY,
+      },
+    },
   )
     .then((response) => response.json())
     .then((data) => ({
@@ -104,6 +113,11 @@ export async function removeFavorite(
 export async function searchStock(ticker: string): Promise<Stock> {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/stock/${ticker}`,
+    {
+      headers: {
+        "x-api-key": import.meta.env.VITE_API_KEY,
+      },
+    },
   );
 
   const data = await response.json();

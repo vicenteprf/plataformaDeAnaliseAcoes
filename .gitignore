@@ -1,8 +1,0 @@
-node_modules/
-
-Backend/dist
-
-.env
-.env.local
-
-*.log
