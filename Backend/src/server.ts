@@ -8,7 +8,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://meu-dominio.vercel.app"],
   }),
 );
 
@@ -24,6 +24,10 @@ app.get("/", (_req, res) => {
   });
 });
 
-app.listen(3333, () => {
-  console.log("Servidor rodando na porta 3333");
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(3333, () => {
+    console.log("Servidor rodando na porta 3333");
+  });
+}
+
+export default app;
