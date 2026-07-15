@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://plataforma-de-analise-acoes.vercel.app/",
+      "https://plataforma-de-analise-acoes.vercel.app",
     ],
   }),
 );
