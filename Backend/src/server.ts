@@ -1,8 +1,8 @@
 import "dotenv/config";
 import express from "express";
-import router from "./src/routes/stockRoutes.js";
+import router from "./routes/stockRoutes.js";
 import cors from "cors";
-import { authMiddleware } from "./src/middlewares/auth.js";
+import { authMiddleware } from "./middlewares/auth.js";
 
 const app = express();
 
