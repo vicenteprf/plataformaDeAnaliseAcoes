@@ -10,8 +10,7 @@ import {
   addFavorite,
   removeFavorite,
 } from "../../service/stockService";
-import type { Stock } from "../../types/stock";
-import type { MarketData } from "../../service/stockService";
+import type { Stock, MarketData } from "../../types/stock";
 
 import { AuthContext } from "../../Context/AuthContext";
 
