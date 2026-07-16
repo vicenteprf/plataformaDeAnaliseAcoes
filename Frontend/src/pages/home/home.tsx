@@ -11,8 +11,7 @@ import {
   removeFavorite,
   searchStock,
 } from "../../service/stockService";
-import type { Stock } from "../../types/stock";
-import type { MarketData } from "../../service/stockService";
+import type { Stock, MarketData } from "../../types/stock";
 
 import { AuthContext } from "../../Context/AuthContext";
 
@@ -24,7 +23,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [marketData, setMarketData] = useState<MarketData | null>(null);
-  const [filter, setFilter] = useState("");
+  const [pesquisa, setPesquisa] = useState("");
+  const [filter, setFilter] = useState("Todas");
   const [visibleCount, setVisibleCount] = useState(5);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
@@ -51,15 +51,29 @@ export default function Home() {
     loadStocks();
   }, [user]);
 
-  function handleFilter(e: ChangeEvent<HTMLInputElement>) {
-    setFilter(e.target.value);
+  const filterAcoes = stock.filter((acoes) => {
+    if (filter === "Todas") {
+      return true;
+    }
+
+    if (filter === "Alta hoje") {
+      return acoes.regularMarketChangePercent > 0;
+    }
+
+    if (filter === "Baixa hoje") {
+      return acoes.regularMarketChangePercent < 0;
+    }
+  });
+
+  function handlePesquisa(e: ChangeEvent<HTMLInputElement>) {
+    setPesquisa(e.target.value);
   }
 
   async function handleSearch() {
     try {
-      if (!filter.trim()) return;
+      if (!pesquisa.trim()) return;
 
-      const data = await searchStock(filter.trim().toUpperCase());
+      const data = await searchStock(pesquisa.trim().toUpperCase());
 
       if (!data) {
         setError("Ação não encontrada.");
@@ -100,10 +114,6 @@ export default function Home() {
             <Link className="text-sm font-medium text-white" to={"/home"}>
               Home
             </Link>
-
-            <a className="text-sm font-medium text-white cursor-pointer">
-              Mercado
-            </a>
 
             <Link
               className="text-sm font-medium text-white"
@@ -189,8 +199,8 @@ export default function Home() {
                   name="text"
                   placeholder="Buscar ação, ticker ou empresa..."
                   className="h-12 flex-1 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-white outline-none focus:border-blue-500"
-                  onChange={handleFilter}
-                  value={filter}
+                  onChange={handlePesquisa}
+                  value={pesquisa}
                 />
 
                 <button
@@ -202,20 +212,28 @@ export default function Home() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                <button className="rounded-full bg-blue-600 px-4 py-2 text-xs font-medium cursor-pointer">
+                <button
+                  onClick={() => setFilter("Todas")}
+                  className={`rounded-full border px-4 py-2 text-xs hover:bg-blue-600 hover:text-white hover:font-bold transition-all duration-200 cursor-pointer
+                    ${filter === "Todas" ? "bg-blue-600 text-white font-bold border-none" : "text-zinc-400 border-zinc-700"}`}
+                >
                   Todas
                 </button>
 
-                <button className="rounded-full border border-zinc-700 px-4 py-2 text-xs text-zinc-400 cursor-pointer">
+                <button
+                  onClick={() => setFilter("Alta hoje")}
+                  className={`rounded-full border px-4 py-2 text-xs hover:bg-blue-600 hover:text-white hover:font-bold transition-all duration-200 cursor-pointer
+                    ${filter === "Alta hoje" ? "bg-blue-600 text-white font-bold border-none" : "text-zinc-400 border-zinc-700"}`}
+                >
                   Alta hoje
                 </button>
 
-                <button className="rounded-full border border-zinc-700 px-4 py-2 text-xs text-zinc-400 cursor-pointer">
-                  Maior DY
-                </button>
-
-                <button className="rounded-full border border-zinc-700 px-4 py-2 text-xs text-zinc-400 cursor-pointer">
-                  Financeiro
+                <button
+                  onClick={() => setFilter("Baixa hoje")}
+                  className={`rounded-full border px-4 py-2 text-xs hover:bg-blue-600 hover:text-white hover:font-bold transition-all duration-200 cursor-pointer
+                    ${filter === "Baixa hoje" ? "bg-blue-600 text-white font-bold border-none" : "text-zinc-400 border-zinc-700"}`}
+                >
+                  Baixa hoje
                 </button>
               </div>
             </div>
@@ -246,7 +264,7 @@ export default function Home() {
                       </td>
                     </tr>
                   )}
-                  {stock.slice(0, visibleCount).map((s) => (
+                  {filterAcoes.slice(0, visibleCount).map((s) => (
                     <tr
                       onClick={() => navigate(`/detalhes/${s.symbol}`)}
                       key={s.symbol}
