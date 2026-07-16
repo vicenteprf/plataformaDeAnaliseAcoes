@@ -1,6 +1,5 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 import { supabase } from "../../lib/supabase";
@@ -49,6 +48,15 @@ export default function Login() {
     navigate("/home");
   }
 
+  async function handleGoogleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "http://localhost:5173/home",
+      },
+    });
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#050816] px-4 shadow-[0_0_20px_rgba(59,130,246,0.10)]">
       <section className="w-full max-w-md ">
@@ -69,14 +77,12 @@ export default function Login() {
           </h2>
 
           <div className="flex flex-col gap-4">
-            <button className="flex items-center justify-center gap-2 rounded-x1 border border-zinc-700 bg-[#111827] py-3 text-white cursor-pointer">
+            <button
+              onClick={handleGoogleLogin}
+              className="flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-[#111827] py-3 text-white cursor-pointer"
+            >
               <FcGoogle size={22} />
               Continuar com Google
-            </button>
-
-            <button className="flex items-center justify-center gap-2 rounded-x1 border border-zinc-700 bg-[#111827] py-3 text-white cursor-pointer">
-              <FaApple size={22} />
-              Continuar com Apple
             </button>
 
             <div className="flex items-center gap-3 py-2">
