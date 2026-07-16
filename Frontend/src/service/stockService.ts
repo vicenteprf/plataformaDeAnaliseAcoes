@@ -1,13 +1,5 @@
 import { supabase } from "../lib/supabase";
-import type { Stock } from "../types/stock";
-
-export interface MarketData {
-  ibovespa: number;
-  ibovespaChange: number;
-  dolar: number;
-  dolarChange: number;
-  volume: number;
-}
+import type { Stock, MarketData } from "../types/stock";
 
 const TICKERS = [
   "TAEE4",
