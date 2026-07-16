@@ -267,8 +267,9 @@ export default function Home() {
                         <span
                           className={`rounded-full px-3 py-1 text-sm ${s.regularMarketChangePercent >= 0 ? "bg-lime-500/10 text-lime-400" : "bg-red-500/10 text-red-400"}`}
                         >
-                          {s.regularMarketChangePercent >= 0 ? "+" : " "}{" "}
-                          {s.regularMarketChangePercent.toFixed(2) ?? "0,00"}%
+                          {s.regularMarketChangePercent >= 0
+                            ? `+${s.regularMarketChangePercent.toFixed(2)}%`
+                            : `${s.regularMarketChangePercent.toFixed(2)}%`}
                         </span>
                       </td>
 
