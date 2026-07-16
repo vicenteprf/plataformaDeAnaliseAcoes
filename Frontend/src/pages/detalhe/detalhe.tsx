@@ -12,6 +12,7 @@ import {
 
 import { fetchStockDetail } from "../../service/stockService";
 import type { Stock } from "../../types/stock";
+import { MOCK_COMPANY_ABOUT, type Ticker } from "../../mocks/sobreEmpresa.mock";
 import { supabase } from "../../lib/supabase";
 
 export default function Detalhes() {
@@ -253,7 +254,7 @@ export default function Detalhes() {
                 Sobre a empresa
               </h3>
               <p className="text-sm text-zinc-400 leading-relaxed">
-                {stock.longBusinessSummary}
+                {MOCK_COMPANY_ABOUT[ticker?.toUpperCase() as Ticker]}
               </p>
             </div>
 
@@ -265,7 +266,7 @@ export default function Detalhes() {
                 },
                 {
                   label: "p/vp",
-                  value: `-`,
+                  value: `${stock.priceToBook?.toFixed(2) ?? "-"}`,
                 },
                 {
                   label: "roe",
