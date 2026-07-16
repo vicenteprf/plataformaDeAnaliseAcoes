@@ -19,6 +19,7 @@ export interface Stock {
   marketCap: number;
   fullTimeEmployees: number;
   earningsPerShare: number;
+  priceToBook: number;
   historicalDataPrice?: {
     date: number;
     open: number;
@@ -27,4 +28,12 @@ export interface Stock {
     close: number;
     volume: number;
   }[];
+}
+
+export interface MarketData {
+  ibovespa: number;
+  ibovespaChange: number;
+  dolar: number;
+  dolarChange: number;
+  volume: number;
 }
