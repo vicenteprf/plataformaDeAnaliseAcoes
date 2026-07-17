@@ -1,123 +1,97 @@
 # StockVault
 
-Plataforma web para acompanhamento e analise de acoes da Bolsa de Valores brasileira, a B3.
+Plataforma web para acompanhamento e análise de ações da Bolsa de Valores brasileira, a B3.
 
-![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
-![Stack](https://img.shields.io/badge/stack-React%20%2B%20TypeScript%20%2B%20Supabase%20%2B%20Node.js-blue)
+![Stack](<https://img.shields.io/badge/stack-React%20%2B%20TypeScript%20%2B%20Supabase%20%2B%20Node.js-blue>)
 
 ## Sobre o projeto
 
-O **StockVault** e um projeto de estudo full stack criado para centralizar informacoes de mercado da B3 em uma interface simples para investidores. A aplicacao permite autenticacao de usuarios, consulta de acoes, visualizacao de indicadores de mercado, favoritos personalizados e pagina de detalhes com grafico historico.
+O **StockVault** é um projeto de estudo full stack criado para centralizar informações de mercado da B3 em uma interface simples para investidores. A aplicação permite autenticação de usuários, consulta de ações, visualização de indicadores de mercado, favoritos personalizados e página de detalhes com gráfico histórico.
 
-O projeto esta organizado em duas partes:
+O projeto está organizado em duas partes:
 
-- **Frontend**: aplicacao React com TypeScript, Vite, Tailwind CSS, React Router, Supabase e Recharts.
-- **Backend**: API Node.js com Express e TypeScript para centralizar consultas de dados de mercado.
+- **Frontend**: aplicação React com TypeScript, Vite, Tailwind CSS, React Router, Supabase e Recharts — deployado na Vercel.
+- **Backend**: API Node.js com Express e TypeScript que atua como proxy seguro para a Brapi — deployado na Vercel.
 
-## O que ja foi feito
+## O que já foi feito
 
-### Frontend
+### Autenticação
 
-- Tela de login com e-mail e senha usando Supabase Auth.
-- Tela de cadastro com validacao basica de campos e senha minima.
-- Contexto global de autenticacao para manter a sessao do usuario.
-- Rotas protegidas para paginas internas da aplicacao.
-- Redirecionamento inicial para a pagina de login.
-- Home autenticada com dashboard de mercado.
-- Listagem inicial de acoes pre-definidas da B3.
-- Busca de acao por ticker.
-- Botao para carregar mais acoes na tabela.
-- Navegacao para detalhes da acao ao clicar em uma linha.
-- Sistema de favoritos por usuario usando tabela `favorites` no Supabase.
-- Pagina "Favoritos" com resumo das acoes salvas.
-- Logout integrado ao Supabase.
-- Interface escura com Tailwind CSS.
-- Icones com `react-icons`.
+- Login com e-mail e senha usando Supabase Auth.
+- Cadastro com validação básica de campos e senha mínima de 8 caracteres.
+- Login social com Google via OAuth (Supabase + Google Cloud Console).
+- Contexto global de autenticação (`AuthProvider`) para manter a sessão do usuário.
+- Rotas protegidas via `ProtectedRoute` para páginas internas.
+- Logout integrado ao Supabase em todas as páginas.
 
-### Pagina Home
+### Página Home
 
-- Cards com dados de mercado:
+- Cards com dados de mercado em tempo real:
   - IBOVESPA.
-  - Variacao do dia.
+  - Variação do dia.
   - Volume negociado.
-  - Dolar.
-  - Selic fixa exibida na interface.
-- Tabela de acoes com:
-  - Ticker.
-  - Nome da empresa.
-  - Preco atual.
-  - Variacao percentual.
-  - Acao de favoritar/desfavoritar.
-- Busca manual por ticker usando a API da Brapi.
+  - Dólar (USD/BRL).
+  - Selic (exibida como valor fixo).
+- Tabela de ações com ticker, nome, preço atual e variação percentual.
+- Filtros por categoria: Todas, Alta hoje, Baixa hoje.
+- Busca manual por ticker com restauração automática da lista ao limpar o campo.
+- Botão para carregar mais ações na tabela.
+- Sistema de favoritar/desfavoritar ações por usuário.
+- Navegação para a página de detalhes ao clicar em uma linha.
 
-### Pagina de detalhes da acao
+### Página de Detalhes
 
-- Consulta de dados detalhados por ticker.
-- Exibicao de nome, setor, industria e resumo da empresa.
-- Preco atual, variacao em reais e variacao percentual.
-- Cards com dados de negociacao:
-  - Preco minimo do dia.
-  - Preco maximo do dia.
-  - Volume.
-  - Dividend Yield.
-  - Minima de 52 semanas.
-  - Maxima de 52 semanas.
-- Grafico historico com Recharts.
-- Selecao de periodo do grafico:
-  - 1D.
-  - 5D.
-  - 1M.
-  - 3M.
-- Cards de fundamentos ja iniciados:
-  - P/L.
-  - Valor de mercado.
-  - Lucro por acao.
-  - Numero de funcionarios.
-  - Indicadores pendentes exibidos como `-`.
+- Consulta de dados detalhados por ticker via backend.
+- Exibição de nome, setor, indústria e resumo da empresa.
+- Preço atual, variação em reais e variação percentual.
+- Cards com dados de negociação: preço mínimo e máximo do dia, volume, Dividend Yield, mínima e máxima de 52 semanas.
+- Gráfico histórico de preços com Recharts.
+- Seleção de período: 1D, 5D, 1M, 3M.
+- Cards de fundamentos: P/L, P/VP, Valor de mercado, Lucro por ação, Funcionários.
+- Indicadores ainda não disponíveis exibidos como `-` com nota explicativa.
 
-### Pagina de favoritos
+### Página de Favoritos
 
-- Lista acoes favoritadas pelo usuario logado.
-- Cards com:
-  - Total de acoes salvas.
-  - Quantidade em alta no dia.
-  - Quantidade em baixa no dia.
-  - Dolar.
-  - Selic fixa.
-- Permite remover acoes da lista de favoritos.
-- Mantem navegacao para a pagina de detalhes da acao.
+- Lista apenas as ações favoritadas pelo usuário logado (busca otimizada — sem carregar todas as ações).
+- Cards com total de ações salvas, quantidade em alta, quantidade em baixa, Dólar e Selic.
+- Permite remover ações da lista de favoritos.
+- Navegação para a página de detalhes de cada ação.
 
 ### Backend
 
 - API criada com Node.js, Express e TypeScript.
-- Servidor configurado na porta `3333`.
-- Uso de variaveis de ambiente com `dotenv`.
-- Integracao com a Brapi usando `axios`.
-- Integracao com AwesomeAPI para cotacao do dolar.
-- Separacao em camadas:
-  - `routes`.
-  - `controllers`.
-  - `services`.
+- Proxy seguro para a Brapi — token nunca exposto no frontend.
+- Middleware de autenticação via header `x-api-key`.
+- CORS configurado para os domínios permitidos (localhost e produção).
+- Cache em memória de 1 minuto para dados de mercado e detalhes de ações, reduzindo chamadas à Brapi.
+- Separação em camadas: `routes`, `controllers`, `services`, `middlewares`.
 - Endpoints implementados:
-  - `GET /` - status da API.
-  - `GET /stocks` - lista de acoes via Brapi.
-  - `GET /stock/:ticker` - detalhe de uma acao.
-  - `GET /market` - dados de mercado.
+  - `GET /` — status da API.
+  - `GET /stocks` — lista de ações via Brapi.
+  - `GET /stock/:ticker` — detalhe de uma ação.
+  - `GET /market` — IBOVESPA e Dólar em tempo real.
+
+### Deploy
+
+- Backend deployado na Vercel com `vercel.json` configurado para serverless.
+- Frontend deployado na Vercel com `vercel.json` configurado para suporte ao React Router.
+- Variáveis de ambiente configuradas na Vercel para ambos os projetos.
 
 ## Tecnologias utilizadas
 
-| Camada        | Tecnologias                  |
-| ------------- | ---------------------------- |
-| Frontend      | React, TypeScript, Vite      |
-| Estilizacao   | Tailwind CSS                 |
-| Roteamento    | React Router DOM             |
-| Autenticacao  | Supabase Auth                |
-| Banco         | Supabase                     |
-| Graficos      | Recharts                     |
-| Icones        | React Icons                  |
-| Backend       | Node.js, Express, TypeScript |
-| HTTP Client   | Axios                        |
-| APIs externas | Brapi, AwesomeAPI            |
+| Camada         | Tecnologias                  |
+| -------------- | ---------------------------- |
+| Frontend       | React, TypeScript, Vite      |
+| Estilização  | Tailwind CSS                 |
+| Roteamento     | React Router DOM v6          |
+| Autenticação | Supabase Auth + Google OAuth |
+| Banco          | Supabase (PostgreSQL + RLS)  |
+| Gráficos      | Recharts                     |
+| Ícones        | React Icons                  |
+| Backend        | Node.js, Express, TypeScript |
+| HTTP Client    | Axios                        |
+| APIs externas  | Brapi                        |
+| Deploy         | Vercel                       |
 
 ## Estrutura do projeto
 
@@ -127,11 +101,14 @@ O projeto esta organizado em duas partes:
 |   |-- src/
 |   |   |-- controllers/
 |   |   |   `-- stockController.ts
+|   |   |-- middlewares/
+|   |   |   `-- auth.ts
 |   |   |-- routes/
 |   |   |   `-- stockRoutes.ts
 |   |   |-- services/
 |   |   |   `-- brapiService.ts
 |   |   `-- server.ts
+|   |-- vercel.json
 |   |-- package.json
 |   `-- tsconfig.json
 |
@@ -140,9 +117,12 @@ O projeto esta organizado em duas partes:
 |   |   |-- components/
 |   |   |   `-- ProtectedRoute.tsx
 |   |   |-- Context/
-|   |   |   `-- AuthContext.tsx
+|   |   |   |-- AuthContext.tsx
+|   |   |   `-- AuthProvider.tsx
 |   |   |-- lib/
 |   |   |   `-- supabase.ts
+|   |   |-- mocks/
+|   |   |   `-- sobreEmpresa.mock.ts
 |   |   |-- pages/
 |   |   |   |-- cadastro/
 |   |   |   |-- detalhe/
@@ -156,6 +136,7 @@ O projeto esta organizado em duas partes:
 |   |   |-- App.tsx
 |   |   |-- index.css
 |   |   `-- main.tsx
+|   |-- vercel.json
 |   |-- .env.example
 |   |-- package.json
 |   `-- vite.config.ts
@@ -165,25 +146,27 @@ O projeto esta organizado em duas partes:
 
 ## Rotas do frontend
 
-| Rota                | Descricao                     |
-| ------------------- | ----------------------------- |
-| `/`                 | Redireciona para `/login`     |
-| `/login`            | Login do usuario              |
-| `/cadastro`         | Cadastro do usuario           |
-| `/home`             | Dashboard principal protegido |
-| `/detalhes/:ticker` | Detalhes da acao selecionada  |
-| `/minhasacoes`      | Lista de favoritos protegida  |
+| Rota                  | Descrição                    |
+| --------------------- | ------------------------------ |
+| `/`                 | Redireciona para`/login`     |
+| `/login`            | Login do usuário              |
+| `/cadastro`         | Cadastro do usuário           |
+| `/home`             | Dashboard principal protegido  |
+| `/detalhes/:ticker` | Detalhes da ação selecionada |
+| `/minhasacoes`      | Lista de favoritos protegida   |
 
 ## Endpoints do backend
 
-| Metodo | Rota             | Descricao                          |
-| ------ | ---------------- | ---------------------------------- |
-| `GET`  | `/`              | Verifica se a API esta funcionando |
-| `GET`  | `/stocks`        | Busca lista de acoes na Brapi      |
-| `GET`  | `/stock/:ticker` | Busca detalhes de uma acao         |
-| `GET`  | `/market`        | Busca IBOVESPA e dolar             |
+| Método | Rota               | Descrição                         |
+| ------- | ------------------ | ----------------------------------- |
+| `GET` | `/`              | Verifica se a API está funcionando |
+| `GET` | `/stocks`        | Busca lista de ações na Brapi     |
+| `GET` | `/stock/:ticker` | Busca detalhes de uma ação        |
+| `GET` | `/market`        | Busca IBOVESPA e Dólar             |
 
-## Variaveis de ambiente
+Todas as rotas (exceto `/`) exigem o header `x-api-key` com a chave configurada no `.env` do backend.
+
+## Variáveis de ambiente
 
 ### Frontend
 
@@ -192,7 +175,9 @@ Crie um arquivo `.env` dentro da pasta `Frontend` com base em `Frontend/.env.exa
 ```env
 VITE_SUPABASE_URL=
 VITE_SUPABASE_ANON_KEY=
-VITE_BRAPI_TOKEN=
+VITE_API_URL=
+VITE_API_KEY=
+VITE_FRONTEND_URL=
 ```
 
 ### Backend
@@ -201,17 +186,10 @@ Crie um arquivo `.env` dentro da pasta `Backend`:
 
 ```env
 BRAPI_TOKEN=
+API_KEY=
 ```
 
 ## Como executar
-
-### Frontend
-
-```bash
-cd Frontend
-npm install
-npm run dev
-```
 
 ### Backend
 
@@ -221,40 +199,23 @@ npm install
 npm run dev
 ```
 
-O backend roda em:
+O backend roda em `http://localhost:3333`.
 
-```text
-http://localhost:3333
+### Frontend
+
+```bash
+cd Frontend
+npm install
+npm run dev
 ```
 
-## Integracoes
+O frontend roda em `http://localhost:5173`.
 
-- **Supabase Auth**: login, cadastro, sessao do usuario e logout.
-- **Supabase Database**: armazenamento dos favoritos na tabela `favorites`.
-- **Brapi**: cotacoes, detalhes das acoes, dados historicos e IBOVESPA.
-- **AwesomeAPI**: cotacao do dolar no backend.
+## Integrações
 
-## Observacoes importantes
-
-- O frontend ainda consulta diretamente a Brapi em `Frontend/src/service/stockService.ts`.
-- O backend ja existe e expoe endpoints proprios, mas ainda nao foi conectado ao frontend.
-- Os botoes de login/cadastro social com Google e Apple ja aparecem na interface, mas ainda nao executam OAuth.
-- Parte dos fundamentos completos ainda esta pendente e aparece como `-`.
-- A Selic esta fixa na interface.
-
-## Proximos passos
-
-- Conectar o frontend aos endpoints do backend.
-- Criar camada unica de servicos para evitar chamadas diretas a Brapi no frontend.
-- Implementar sistema de alertas de preco.
-- Criar tabela de alertas no Supabase.
-- Ativar O Auth com Google e Apple.
-- Melhorar tratamento de erros das chamadas de API.
-- Adicionar loading states mais refinados.
-- Tornar a Selic dinamica.
-- Finalizar indicadores fundamentalistas completos.
-- Melhorar responsividade mobile das tabelas e graficos.
-- Criar deploy do frontend e backend.
+- **Supabase Auth**: login com e-mail/senha, login com Google OAuth, sessão persistida e logout.
+- **Supabase Database**: tabela `favorites` com RLS para armazenar favoritos por usuário.
+- **Brapi**: cotações, detalhes das ações, dados históricos, IBOVESPA e Dólar — acessados exclusivamente pelo backend.
 
 ## Autor
 
