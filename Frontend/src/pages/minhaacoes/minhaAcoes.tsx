@@ -90,10 +90,6 @@ export default function MinhasAcoes() {
               Home
             </Link>
 
-            <a className="text-sm font-medium text-white cursor-pointer">
-              Mercado
-            </a>
-
             <Link
               className="text-sm font-medium text-white"
               to={"/minhasacoes"}
@@ -121,9 +117,7 @@ export default function MinhasAcoes() {
               ações salvas
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-lime-400">
-              {favorites.length}
-            </h2>
+            <h2 className="mt-2 text-3xl font-bold ">{favorites.length}</h2>
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
@@ -131,7 +125,9 @@ export default function MinhasAcoes() {
               em alta hoje
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold">{stocksUpToday}</h2>
+            <h2 className="mt-2 text-3xl font-bold text-lime-400">
+              {stocksUpToday}
+            </h2>
           </div>
 
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
@@ -150,7 +146,11 @@ export default function MinhasAcoes() {
             </p>
 
             <h2 className="mt-2 text-3xl font-bold text-white">
-              R$ {marketData?.dolar.toFixed(2) ?? "..."}
+              R${" "}
+              {marketData?.dolar.toLocaleString("pt-br", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) ?? "..."}
             </h2>
           </div>
           <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
@@ -211,7 +211,11 @@ export default function MinhasAcoes() {
 
                       <td>
                         <span className="rounded-full px-3 py-1 text-sm">
-                          R$ {s.regularMarketPrice.toFixed(2) ?? "-"}
+                          R${" "}
+                          {s.regularMarketPrice.toLocaleString("pt-br", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }) ?? "-"}
                         </span>
                       </td>
 
@@ -220,7 +224,14 @@ export default function MinhasAcoes() {
                           className={`rounded-full px-2  text-xs font-bold ${s.regularMarketChangePercent >= 0 ? `  bg-lime-400/80 text-lime-950` : ` bg-red-400/80 text-red-950`}`}
                         >
                           {s.regularMarketChangePercent >= 0 ? "+" : ""}
-                          {s.regularMarketChangePercent.toFixed(2)}%
+                          {s.regularMarketChangePercent.toLocaleString(
+                            "pt-br",
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            },
+                          )}
+                          %
                         </span>
                       </td>
 
