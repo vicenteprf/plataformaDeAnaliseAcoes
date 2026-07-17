@@ -52,7 +52,7 @@ export default function Login() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${import.meta.env.VITE_API_URL}/home`,
+        redirectTo: `${import.meta.env.VITE_FRONTEND_URL}/home`,
       },
     });
   }
