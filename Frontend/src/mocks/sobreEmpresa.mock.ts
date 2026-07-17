@@ -1,4 +1,4 @@
-export const TICKERS = [
+export const tickersMocks = [
   "TAEE4",
   "BBAS3",
   "CSMG3",
@@ -16,7 +16,7 @@ export const TICKERS = [
   "TIMS3",
 ] as const;
 
-export type Ticker = (typeof TICKERS)[number];
+export type Ticker = (typeof tickersMocks)[number];
 
 export const MOCK_COMPANY_ABOUT: Record<Ticker, string> = {
   TAEE4:
