@@ -30,15 +30,13 @@ export default function MinhasAcoes() {
     async function loadStocks() {
       try {
         const favs = await fetchFavorites(user!.id);
-
         setFavorites(favs);
 
         const market = await fetchMarketData();
         setMarketData(market);
+
         const stockData = await Promise.all(
-          favs.map((ticker) => {
-            return fetchStockDetail(ticker);
-          }),
+          favs.map((ticker) => fetchStockDetail(ticker)),
         );
         setStock(stockData);
       } catch {
@@ -53,7 +51,6 @@ export default function MinhasAcoes() {
 
   async function handleFavorite(ticker: string) {
     if (!user) return;
-
     if (favorites.includes(ticker)) {
       await removeFavorite(user.id, ticker);
       setFavorites((prev) => prev.filter((f) => f !== ticker));
@@ -79,17 +76,15 @@ export default function MinhasAcoes() {
     <main className="min-h-screen bg-[#050816] text-white">
       <header className="border-b border-zinc-900 bg-[#070B17]">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <Link to="/home" className="text-2xl font-bold ">
-              Stock <span className="text-blue-500">Vault</span>
-            </Link>
-          </div>
+          <Link to="/home" className="text-2xl font-bold">
+            Stock <span className="text-blue-500">Vault</span>
+          </Link>
 
+          {/* Nav desktop */}
           <nav className="hidden items-center gap-8 md:flex">
             <Link className="text-sm font-medium text-white" to={"/home"}>
               Home
             </Link>
-
             <Link
               className="text-sm font-medium text-white"
               to={"/minhasacoes"}
@@ -108,44 +103,53 @@ export default function MinhasAcoes() {
             <FiLogOut size={18} />
           </button>
         </div>
+
+        {/* Nav mobile — aparece só abaixo de md */}
+        <nav className="flex items-center gap-6 border-t border-zinc-900 px-4 py-2 md:hidden">
+          <Link className="text-sm font-medium text-zinc-400" to={"/home"}>
+            Home
+          </Link>
+          <Link className="text-sm font-medium text-white" to={"/minhasacoes"}>
+            Favoritos
+          </Link>
+        </nav>
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+        {/* Cards — 2 colunas no mobile, 5 no desktop */}
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
-              ações salvas
+              Ações salvas
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold ">{favorites.length}</h2>
+            <h2 className="mt-2 text-xl font-bold sm:text-3xl">
+              {favorites.length}
+            </h2>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
-              em alta hoje
+              Em alta hoje
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold text-lime-400">
+            <h2 className="mt-2 text-xl font-bold text-lime-400 sm:text-3xl">
               {stocksUpToday}
             </h2>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
-              em baixa hoje
+              Em baixa hoje
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold text-red-400">
+            <h2 className="mt-2 text-xl font-bold text-red-400 sm:text-3xl">
               {stocksDownToday}
             </h2>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Dólar (USD)
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold text-white">
+            <h2 className="mt-2 text-xl font-bold text-white sm:text-3xl">
               R${" "}
               {marketData?.dolar.toLocaleString("pt-br", {
                 minimumFractionDigits: 2,
@@ -153,40 +157,39 @@ export default function MinhasAcoes() {
               }) ?? "..."}
             </h2>
           </div>
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Selic
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold">14,50%</h2>
+            <h2 className="mt-2 text-xl font-bold sm:text-3xl">14,50%</h2>
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-1 gap-6">
+        <div className="mt-6">
           <section className="rounded-2xl border border-zinc-800 bg-[#0B1020]">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[360px]">
                 <thead className="border-b border-zinc-800 text-left text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="p-4">Empresa</th>
-                    {/* <th>Gráfico 7D</th> */}
-                    <th>Preço</th>
-                    <th>Variação</th>
-                    <th>Alerta</th>
+                    <th className="p-4">Preço</th>
+                    <th className="p-4">Variação</th>
+                    <th className="p-4">⭐</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {isLoading && (
                     <tr>
-                      <td colSpan={6} className="p-4 text-center text-zinc-500">
+                      <td colSpan={4} className="p-4 text-center text-zinc-500">
                         Carregando...
                       </td>
                     </tr>
                   )}
                   {error && (
                     <tr>
-                      <td colSpan={6} className="p-4 text-center-text-red-400">
+                      <td colSpan={4} className="p-4 text-center text-red-400">
                         {error}
                       </td>
                     </tr>
@@ -195,33 +198,26 @@ export default function MinhasAcoes() {
                     <tr
                       onClick={() => navigate(`/detalhes/${s.symbol}`)}
                       key={s.symbol}
-                      className=" border-b border-zinc-900 hover:bg-[#111827] cursor-pointer"
+                      className="border-b border-zinc-900 hover:bg-[#111827] cursor-pointer"
                     >
                       <td className="p-4">
-                        <div>
-                          <h3 className="font-semibold">{s.symbol}</h3>
-                          <p className="text-sm text-zinc-500">
-                            {s.longName ?? s.name}
-                          </p>
-                        </div>
+                        <h3 className="font-semibold text-sm">{s.symbol}</h3>
+                        <p className="text-xs text-zinc-500 truncate max-w-[100px] sm:max-w-none">
+                          {s.longName ?? s.name}
+                        </p>
                       </td>
 
-                      {/* Gráfico 7D*/}
-                      {/* <td className="font-semibold"></td> */}
-
-                      <td>
-                        <span className="rounded-full px-3 py-1 text-sm">
-                          R${" "}
-                          {s.regularMarketPrice.toLocaleString("pt-br", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          }) ?? "-"}
-                        </span>
+                      <td className="p-4 font-semibold text-sm whitespace-nowrap">
+                        R${" "}
+                        {s.regularMarketPrice.toLocaleString("pt-br", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                       </td>
 
-                      <td>
+                      <td className="p-4">
                         <span
-                          className={`rounded-full px-2 text-xs font-bold ${
+                          className={`rounded-full px-2 py-1 text-xs font-bold whitespace-nowrap ${
                             s.regularMarketChangePercent > 0
                               ? "bg-lime-400/80 text-lime-950"
                               : s.regularMarketChangePercent < 0
@@ -241,22 +237,22 @@ export default function MinhasAcoes() {
                         </span>
                       </td>
 
-                      <td>
+                      <td className="p-4">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleFavorite(s.symbol);
                           }}
-                          className={`ml-4 cursor-pointer transition mt-6 ${
+                          className={`cursor-pointer transition ${
                             favorites.includes(s.symbol)
                               ? "text-yellow-500"
                               : "text-zinc-500"
                           }`}
                         >
                           {favorites.includes(s.symbol) ? (
-                            <FaStar size={22} />
+                            <FaStar size={20} />
                           ) : (
-                            <FaRegStar size={22} />
+                            <FaRegStar size={20} />
                           )}
                         </button>
                       </td>

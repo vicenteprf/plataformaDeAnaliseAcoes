@@ -52,28 +52,18 @@ export default function Home() {
   }, [user]);
 
   const filterAcoes = stock.filter((acoes) => {
-    if (filter === "Todas") {
-      return true;
-    }
-
-    if (filter === "Alta hoje") {
-      return acoes.regularMarketChangePercent > 0;
-    }
-
-    if (filter === "Baixa hoje") {
-      return acoes.regularMarketChangePercent < 0;
-    }
+    if (filter === "Todas") return true;
+    if (filter === "Alta hoje") return acoes.regularMarketChangePercent > 0;
+    if (filter === "Baixa hoje") return acoes.regularMarketChangePercent < 0;
   });
 
   async function handlePesquisa(e: ChangeEvent<HTMLInputElement>) {
     const valor = e.target.value;
     setPesquisa(valor);
 
-    // Se o campo ficou vazio (comprimento igual a 0 após remover espaços)
     if (valor.trim().length === 0) {
       setError(null);
       setIsLoading(true);
-
       try {
         const stockData = await fetchStocks();
         setStock(stockData);
@@ -88,14 +78,11 @@ export default function Home() {
   async function handleSearch() {
     try {
       if (!pesquisa.trim()) return;
-
       const data = await searchStock(pesquisa.trim().toUpperCase());
-
       if (!data) {
         setError("Ação não encontrada.");
         return;
       }
-
       setError(null);
       setStock([data]);
     } catch (e) {
@@ -106,7 +93,6 @@ export default function Home() {
 
   async function handleFavorite(ticker: string) {
     if (!user) return;
-
     if (favorites.includes(ticker)) {
       await removeFavorite(user.id, ticker);
       setFavorites((prev) => prev.filter((f) => f !== ticker));
@@ -120,17 +106,15 @@ export default function Home() {
     <main className="min-h-screen bg-[#050816] text-white">
       <header className="border-b border-zinc-900 bg-[#070B17]">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold">
-              Stock <span className="text-blue-500">Vault</span>
-            </h1>
-          </div>
+          <h1 className="text-2xl font-bold">
+            Stock <span className="text-blue-500">Vault</span>
+          </h1>
 
+          {/* Nav desktop */}
           <nav className="hidden items-center gap-8 md:flex">
             <Link className="text-sm font-medium text-white" to={"/home"}>
               Home
             </Link>
-
             <Link
               className="text-sm font-medium text-white"
               to={"/minhasacoes"}
@@ -149,50 +133,67 @@ export default function Home() {
             <FiLogOut size={18} />
           </button>
         </div>
+
+        {/* Nav mobile — aparece só abaixo de md */}
+        <nav className="flex items-center gap-6 border-t border-zinc-900 px-4 py-2 md:hidden">
+          <Link className="text-sm font-medium text-white" to={"/home"}>
+            Home
+          </Link>
+          <Link
+            className="text-sm font-medium text-zinc-400"
+            to={"/minhasacoes"}
+          >
+            Favoritos
+          </Link>
+        </nav>
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+        {/* Cards de mercado — 2 colunas no mobile, 5 no desktop */}
+        <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               IBOVESPA
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold text-white">
+            <h2 className="mt-2 text-xl font-bold text-white sm:text-3xl">
               {marketData?.ibovespa?.toLocaleString("pt-BR") ?? "..."}
             </h2>
           </div>
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Variação hoje
             </p>
-
             <h2
-              className={`mt-2 text-3xl font-bold ${marketData?.ibovespaChange !== undefined && marketData.ibovespaChange >= 0 ? "text-lime-400" : "text-red-400"}`}
+              className={`mt-2 text-xl font-bold sm:text-3xl ${
+                marketData?.ibovespaChange !== undefined &&
+                marketData.ibovespaChange >= 0
+                  ? "text-lime-400"
+                  : "text-red-400"
+              }`}
             >
               {marketData
                 ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData?.ibovespaChange?.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
                 : "..."}
             </h2>
           </div>
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Vol. negociado
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold">
+            <h2 className="mt-2 text-xl font-bold sm:text-3xl">
               {marketData
                 ? `R$ ${(marketData.volume / 1e9).toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}B`
                 : "..."}
             </h2>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Dólar (USD)
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold text-white">
+            <h2 className="mt-2 text-xl font-bold text-white sm:text-3xl">
               R${" "}
               {marketData?.dolar?.toLocaleString("pt-br", {
                 minimumFractionDigits: 2,
@@ -201,71 +202,62 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-5">
+          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Selic
             </p>
-
-            <h2 className="mt-2 text-3xl font-bold ">14,50%</h2>
+            <h2 className="mt-2 text-xl font-bold sm:text-3xl">14,50%</h2>
           </div>
         </section>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 ">
+        <div className="mt-6">
           <section className="rounded-2xl border border-zinc-800 bg-[#0B1020]">
+            {/* Barra de pesquisa e filtros */}
             <div className="border-b border-zinc-800 p-4">
-              <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex gap-2">
                 <input
                   type="text"
                   name="text"
-                  placeholder="Buscar ação, ticker ou empresa..."
+                  placeholder="Buscar ticker..."
                   className="h-12 flex-1 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-white outline-none focus:border-blue-500"
                   onChange={handlePesquisa}
                   value={pesquisa}
                 />
-
                 <button
                   onClick={handleSearch}
-                  className="rounded-xl border border-zinc-700 bg-[#111827] px-5 text-sm text-zinc-300 cursor-pointer font-bold hover:bg-blue-600"
+                  className="h-12 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-sm text-zinc-300 cursor-pointer font-bold hover:bg-blue-600 whitespace-nowrap"
                 >
-                  Pesquisar
+                  Buscar
                 </button>
               </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  onClick={() => setFilter("Todas")}
-                  className={`rounded-full border px-4 py-2 text-xs hover:bg-blue-600 hover:text-white hover:font-bold transition-all duration-200 cursor-pointer
-                    ${filter === "Todas" ? "bg-blue-600 text-white font-bold border-none" : "text-zinc-400 border-zinc-700"}`}
-                >
-                  Todas
-                </button>
-
-                <button
-                  onClick={() => setFilter("Alta hoje")}
-                  className={`rounded-full border px-4 py-2 text-xs hover:bg-blue-600 hover:text-white hover:font-bold transition-all duration-200 cursor-pointer
-                    ${filter === "Alta hoje" ? "bg-blue-600 text-white font-bold border-none" : "text-zinc-400 border-zinc-700"}`}
-                >
-                  Alta hoje
-                </button>
-
-                <button
-                  onClick={() => setFilter("Baixa hoje")}
-                  className={`rounded-full border px-4 py-2 text-xs hover:bg-blue-600 hover:text-white hover:font-bold transition-all duration-200 cursor-pointer
-                    ${filter === "Baixa hoje" ? "bg-blue-600 text-white font-bold border-none" : "text-zinc-400 border-zinc-700"}`}
-                >
-                  Baixa hoje
-                </button>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {["Todas", "Alta hoje", "Baixa hoje"].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`rounded-full border px-3 py-1.5 text-xs transition-all duration-200 cursor-pointer
+                      ${
+                        filter === f
+                          ? "bg-blue-600 text-white font-bold border-none"
+                          : "text-zinc-400 border-zinc-700 hover:bg-blue-600 hover:text-white"
+                      }`}
+                  >
+                    {f}
+                  </button>
+                ))}
               </div>
             </div>
 
+            {/* Tabela */}
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[360px]">
                 <thead className="border-b border-zinc-800 text-left text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="p-4">Empresa</th>
-                    <th>Preço</th>
-                    <th>Variação</th>
-                    <th>Favorito</th>
+                    <th className="p-4">Preço</th>
+                    <th className="p-4">Variação</th>
+                    <th className="p-4">⭐</th>
                   </tr>
                 </thead>
 
@@ -279,7 +271,7 @@ export default function Home() {
                   )}
                   {error && (
                     <tr>
-                      <td colSpan={4} className="p-4 text-center-text-red-400">
+                      <td colSpan={4} className="p-4 text-center text-red-400">
                         {error}
                       </td>
                     </tr>
@@ -288,26 +280,26 @@ export default function Home() {
                     <tr
                       onClick={() => navigate(`/detalhes/${s.symbol}`)}
                       key={s.symbol}
-                      className=" border-b border-zinc-900 hover:bg-[#111827] cursor-pointer"
+                      className="border-b border-zinc-900 hover:bg-[#111827] cursor-pointer"
                     >
                       <td className="p-4">
-                        <div>
-                          <h3 className="font-semibold">{s.symbol}</h3>
-                          <p className="text-sm text-zinc-500">{s.shortName}</p>
-                        </div>
+                        <h3 className="font-semibold text-sm">{s.symbol}</h3>
+                        <p className="text-xs text-zinc-500 truncate max-w-[100px] sm:max-w-none">
+                          {s.shortName}
+                        </p>
                       </td>
 
-                      <td className="font-semibold">
+                      <td className="p-4 font-semibold text-sm whitespace-nowrap">
                         R${" "}
                         {s.regularMarketPrice.toLocaleString("pt-br", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
-                        }) ?? "0,00"}
+                        })}
                       </td>
 
-                      <td>
+                      <td className="p-4">
                         <span
-                          className={`rounded-full px-3 py-1 text-sm ${
+                          className={`rounded-full px-2 py-1 text-xs font-semibold whitespace-nowrap ${
                             s.regularMarketChangePercent > 0
                               ? "bg-lime-500/10 text-lime-400"
                               : s.regularMarketChangePercent < 0
@@ -316,39 +308,27 @@ export default function Home() {
                           }`}
                         >
                           {s.regularMarketChangePercent > 0
-                            ? `+${s.regularMarketChangePercent.toLocaleString(
-                                "pt-BR",
-                                {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                },
-                              )}%`
-                            : `${s.regularMarketChangePercent.toLocaleString(
-                                "pt-BR",
-                                {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                },
-                              )}%`}
+                            ? `+${s.regularMarketChangePercent.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+                            : `${s.regularMarketChangePercent.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
                         </span>
                       </td>
 
-                      <td>
+                      <td className="p-4">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleFavorite(s.symbol);
                           }}
-                          className={`ml-4 cursor-pointer transition mt-6 ${
+                          className={`cursor-pointer transition ${
                             favorites.includes(s.symbol)
                               ? "text-yellow-500"
                               : "text-zinc-600 hover:text-zinc-400"
                           }`}
                         >
                           {favorites.includes(s.symbol) ? (
-                            <FaStar size={22} />
+                            <FaStar size={20} />
                           ) : (
-                            <FaRegStar size={22} />
+                            <FaRegStar size={20} />
                           )}
                         </button>
                       </td>
@@ -356,6 +336,7 @@ export default function Home() {
                   ))}
                 </tbody>
               </table>
+
               <div className="flex justify-center p-4">
                 {visibleCount < stock.length && (
                   <button
