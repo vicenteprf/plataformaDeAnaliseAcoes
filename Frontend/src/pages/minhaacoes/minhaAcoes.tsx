@@ -221,11 +221,17 @@ export default function MinhasAcoes() {
 
                       <td>
                         <span
-                          className={`rounded-full px-2  text-xs font-bold ${s.regularMarketChangePercent >= 0 ? `  bg-lime-400/80 text-lime-950` : ` bg-red-400/80 text-red-950`}`}
+                          className={`rounded-full px-2 text-xs font-bold ${
+                            s.regularMarketChangePercent > 0
+                              ? "bg-lime-400/80 text-lime-950"
+                              : s.regularMarketChangePercent < 0
+                                ? "bg-red-400/80 text-red-950"
+                                : "bg-gray-400/80 text-gray-900"
+                          }`}
                         >
-                          {s.regularMarketChangePercent >= 0 ? "+" : ""}
+                          {s.regularMarketChangePercent > 0 ? "+" : ""}
                           {s.regularMarketChangePercent.toLocaleString(
-                            "pt-br",
+                            "pt-BR",
                             {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,

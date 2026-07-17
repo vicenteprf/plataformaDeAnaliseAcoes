@@ -307,11 +307,29 @@ export default function Home() {
 
                       <td>
                         <span
-                          className={`rounded-full px-3 py-1 text-sm ${s.regularMarketChangePercent >= 0 ? "bg-lime-500/10 text-lime-400" : "bg-red-500/10 text-red-400"}`}
+                          className={`rounded-full px-3 py-1 text-sm ${
+                            s.regularMarketChangePercent > 0
+                              ? "bg-lime-500/10 text-lime-400"
+                              : s.regularMarketChangePercent < 0
+                                ? "bg-red-500/10 text-red-400"
+                                : "bg-gray-500/10 text-gray-400"
+                          }`}
                         >
-                          {s.regularMarketChangePercent >= 0
-                            ? `+${s.regularMarketChangePercent.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
-                            : `${s.regularMarketChangePercent.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
+                          {s.regularMarketChangePercent > 0
+                            ? `+${s.regularMarketChangePercent.toLocaleString(
+                                "pt-BR",
+                                {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                },
+                              )}%`
+                            : `${s.regularMarketChangePercent.toLocaleString(
+                                "pt-BR",
+                                {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                },
+                              )}%`}
                         </span>
                       </td>
 
