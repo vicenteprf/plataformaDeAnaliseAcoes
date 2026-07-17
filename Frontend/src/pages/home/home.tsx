@@ -65,8 +65,24 @@ export default function Home() {
     }
   });
 
-  function handlePesquisa(e: ChangeEvent<HTMLInputElement>) {
-    setPesquisa(e.target.value);
+  async function handlePesquisa(e: ChangeEvent<HTMLInputElement>) {
+    const valor = e.target.value;
+    setPesquisa(valor);
+
+    // Se o campo ficou vazio (comprimento igual a 0 após remover espaços)
+    if (valor.trim().length === 0) {
+      setError(null);
+      setIsLoading(true);
+
+      try {
+        const stockData = await fetchStocks();
+        setStock(stockData);
+      } catch {
+        setError("Erro ao restaurar a lista de ações.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
   }
 
   async function handleSearch() {
@@ -155,7 +171,7 @@ export default function Home() {
               className={`mt-2 text-3xl font-bold ${marketData?.ibovespaChange !== undefined && marketData.ibovespaChange >= 0 ? "text-lime-400" : "text-red-400"}`}
             >
               {marketData
-                ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData?.ibovespaChange?.toFixed(2)}%`
+                ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData?.ibovespaChange?.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
                 : "..."}
             </h2>
           </div>
@@ -166,7 +182,7 @@ export default function Home() {
 
             <h2 className="mt-2 text-3xl font-bold">
               {marketData
-                ? `R$ ${(marketData.volume / 1e9).toFixed(1)}B`
+                ? `R$ ${(marketData.volume / 1e9).toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}B`
                 : "..."}
             </h2>
           </div>
@@ -177,7 +193,11 @@ export default function Home() {
             </p>
 
             <h2 className="mt-2 text-3xl font-bold text-white">
-              R$ {marketData?.dolar?.toFixed(2) ?? "..."}
+              R${" "}
+              {marketData?.dolar?.toLocaleString("pt-br", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) ?? "..."}
             </h2>
           </div>
 
@@ -207,7 +227,7 @@ export default function Home() {
                   onClick={handleSearch}
                   className="rounded-xl border border-zinc-700 bg-[#111827] px-5 text-sm text-zinc-300 cursor-pointer font-bold hover:bg-blue-600"
                 >
-                  Filtrar
+                  Pesquisar
                 </button>
               </div>
 
@@ -278,7 +298,11 @@ export default function Home() {
                       </td>
 
                       <td className="font-semibold">
-                        R$ {s.regularMarketPrice.toFixed(2) ?? "0,00"}
+                        R${" "}
+                        {s.regularMarketPrice.toLocaleString("pt-br", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }) ?? "0,00"}
                       </td>
 
                       <td>
@@ -286,8 +310,8 @@ export default function Home() {
                           className={`rounded-full px-3 py-1 text-sm ${s.regularMarketChangePercent >= 0 ? "bg-lime-500/10 text-lime-400" : "bg-red-500/10 text-red-400"}`}
                         >
                           {s.regularMarketChangePercent >= 0
-                            ? `+${s.regularMarketChangePercent.toFixed(2)}%`
-                            : `${s.regularMarketChangePercent.toFixed(2)}%`}
+                            ? `+${s.regularMarketChangePercent.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+                            : `${s.regularMarketChangePercent.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`}
                         </span>
                       </td>
 
