@@ -11,7 +11,7 @@ import Detalhes from "./pages/detalhe/detalhe.tsx";
 import MinhasAcoes from "./pages/minhaacoes/minhaAcoes.tsx";
 
 import { Private } from "./components/ProtectedRoute.tsx";
-import AuthProvider from "./Context/AuthContext.tsx";
+import { AuthProvider } from "./Context/AuthProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
