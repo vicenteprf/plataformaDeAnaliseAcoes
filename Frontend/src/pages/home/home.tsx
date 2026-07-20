@@ -206,7 +206,7 @@ export default function Home() {
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Selic
             </p>
-            <h2 className="mt-2 text-xl font-bold sm:text-3xl">14,50%</h2>
+            <h2 className="mt-2 text-xl font-bold sm:text-3xl">14,25%</h2>
           </div>
         </section>
 
