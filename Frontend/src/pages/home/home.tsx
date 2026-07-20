@@ -251,7 +251,7 @@ export default function Home() {
 
             {/* Tabela */}
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[360px]">
+              <table className="w-full min-w-90">
                 <thead className="border-b border-zinc-800 text-left text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="p-4">Empresa</th>
@@ -284,7 +284,7 @@ export default function Home() {
                     >
                       <td className="p-4">
                         <h3 className="font-semibold text-sm">{s.symbol}</h3>
-                        <p className="text-xs text-zinc-500 truncate max-w-[100px] sm:max-w-none">
+                        <p className="text-xs text-zinc-500 truncate max-w-25 sm:max-w-none">
                           {s.shortName}
                         </p>
                       </td>

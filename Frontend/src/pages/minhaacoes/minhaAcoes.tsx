@@ -169,7 +169,7 @@ export default function MinhasAcoes() {
         <div className="mt-6">
           <section className="rounded-2xl border border-zinc-800 bg-[#0B1020]">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[360px]">
+              <table className="w-full min-w-90">
                 <thead className="border-b border-zinc-800 text-left text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="p-4">Empresa</th>
@@ -202,7 +202,7 @@ export default function MinhasAcoes() {
                     >
                       <td className="p-4">
                         <h3 className="font-semibold text-sm">{s.symbol}</h3>
-                        <p className="text-xs text-zinc-500 truncate max-w-[100px] sm:max-w-none">
+                        <p className="text-xs text-zinc-500 truncate max-w-25 sm:max-w-none">
                           {s.longName ?? s.name}
                         </p>
                       </td>
