@@ -3,6 +3,7 @@ import express from "express";
 import router from "./routes/stockRoutes.js";
 import cors from "cors";
 import { authMiddleware } from "./middlewares/auth.js";
+import { globalErrorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
@@ -26,6 +27,8 @@ app.get("/", (_req, res) => {
     message: "API funcionando!",
   });
 });
+
+app.use(globalErrorHandler);
 
 if (process.env.NODE_ENV !== "production") {
   app.listen(3333, () => {

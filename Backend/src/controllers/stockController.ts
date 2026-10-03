@@ -3,38 +3,47 @@ import {
   getStockList,
   getMarketData,
 } from "../services/brapiService.js";
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 
-export async function getDetail(req: Request, res: Response) {
+export async function getDetail(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const ticker = req.params.ticker as string;
   const range = (req.query.range as string) ?? "1mo";
 
   try {
     const data = await getStockDetail(ticker, range);
-
     return res.json(data);
-  } catch (e) {
-    return res.status(500).json({ error: `Error: ${e}` });
+  } catch (e: any) {
+    e.context = `getDetail (${ticker})`;
+    next(e);
   }
 }
 
-export async function getList(req: Request, res: Response) {
+export async function getList(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const data = await getStockList();
-
     return res.json(data);
   } catch (e) {
-    return res.status(500).json({ error: `Error: ${e}` });
+    next(e);
   }
 }
 
-export async function getMarket(req: Request, res: Response) {
+export async function getMarket(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   try {
     const data = await getMarketData();
-
     return res.json(data);
   } catch (e) {
-    console.error("Erro no getMarket:", e);
-    return res.status(500).json({ error: `Error: ${e}` });
+    next(e);
   }
 }
