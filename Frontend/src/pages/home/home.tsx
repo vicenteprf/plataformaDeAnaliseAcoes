@@ -1,8 +1,6 @@
 import { useEffect, useState, useContext, type ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
 import { supabase } from "../../lib/supabase";
-
 import {
   fetchStocks,
   fetchMarketData,
@@ -12,9 +10,7 @@ import {
   searchStock,
 } from "../../service/stockService";
 import type { Stock, MarketData } from "../../types/stock";
-
 import { AuthContext } from "../../Context/AuthContext";
-
 import { FiLogOut } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
 
@@ -30,10 +26,12 @@ export default function Home() {
   const { user } = useContext(AuthContext);
   const [favorites, setFavorites] = useState<string[]>([]);
 
+  const userId = user!.id;
+
   useEffect(() => {
     async function loadStocks() {
       try {
-        const favs = await fetchFavorites(user!.id);
+        const favs = await fetchFavorites(userId);
         const [stockData, market] = await Promise.all([
           fetchStocks(),
           fetchMarketData(),
@@ -49,7 +47,7 @@ export default function Home() {
     }
 
     loadStocks();
-  }, [user]);
+  }, [userId]);
 
   const filterAcoes = stock.filter((acoes) => {
     if (filter === "Todas") return true;

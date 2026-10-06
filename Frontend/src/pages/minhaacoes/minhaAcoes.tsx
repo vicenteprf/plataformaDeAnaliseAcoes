@@ -26,10 +26,12 @@ export default function MinhasAcoes() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const userId = user!.id;
+
   useEffect(() => {
     async function loadStocks() {
       try {
-        const favs = await fetchFavorites(user!.id);
+        const favs = await fetchFavorites(userId);
         setFavorites(favs);
 
         const market = await fetchMarketData();
@@ -47,7 +49,7 @@ export default function MinhasAcoes() {
     }
 
     loadStocks();
-  }, [user]);
+  }, [userId]);
 
   async function handleFavorite(ticker: string) {
     if (!user) return;
