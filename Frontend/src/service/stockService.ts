@@ -83,26 +83,38 @@ export async function searchStock(ticker: string): Promise<Stock> {
 }
 
 async function apiRequest(path: string) {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
-    headers: {
-      "x-api-key": import.meta.env.VITE_API_KEY,
-    },
-  });
+  const maxTentativas = 3;
 
-  if (!response.ok) {
-    let mensagem = "Erro desconhecido ao realizar a requisição.";
+  for (let i = 0; i <= maxTentativas; i++) {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
+      headers: {
+        "x-api-key": import.meta.env.VITE_API_KEY,
+      },
+    });
 
-    try {
-      const data = (await response.json()) as { error?: string };
-      if (data.error) {
-        mensagem = data.error;
+    if (!response.ok) {
+      let mensagem = "Erro desconhecido ao realizar a requisição.";
+
+      if (response.status === 429 && i < maxTentativas) {
+        const segundos = Number(response.headers.get("retry-after")) || 1;
+
+        await new Promise((resolve) => setTimeout(resolve, segundos * 1000));
+
+        continue;
       }
-    } catch {
-      // não faz nada: continua valendo a mensagem padrão
+
+      try {
+        const data = (await response.json()) as { error?: string };
+        if (data.error) {
+          mensagem = data.error;
+        }
+      } catch {
+        // não faz nada: continua valendo a mensagem padrão
+      }
+
+      throw new ApiError(mensagem, response.status);
     }
 
-    throw new ApiError(mensagem, response.status);
+    return response.json();
   }
-
-  return response.json();
 }
