@@ -40,21 +40,12 @@ export async function fetchStockDetail(
   ticker: string,
   range: string = "1mo",
 ): Promise<Stock> {
-  const detail = await fetch(
-    `${import.meta.env.VITE_API_URL}/stock/${ticker}?range=${range}&modules=summaryProfile`,
-    {
-      headers: {
-        "x-api-key": import.meta.env.VITE_API_KEY,
-      },
-    },
-  )
-    .then((response) => response.json())
-    .then((data) => ({
-      ...data.results[0],
-      ...data.results[0]?.summaryProfile,
-    }));
-
-  return detail;
+  return apiRequest(
+    `/stock/${ticker}?range=${range}&modules=summaryProfile`,
+  ).then((data) => ({
+    ...data.results[0],
+    ...data.results[0]?.summaryProfile,
+  }));
 }
 
 // Buscarr favoritos do usuário
@@ -88,18 +79,7 @@ export async function removeFavorite(
 }
 
 export async function searchStock(ticker: string): Promise<Stock> {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/stock/${ticker}`,
-    {
-      headers: {
-        "x-api-key": import.meta.env.VITE_API_KEY,
-      },
-    },
-  );
-
-  const data = await response.json();
-
-  return data.results[0];
+  return apiRequest(`/stock/${ticker}`).then((data) => data.results[0]);
 }
 
 async function apiRequest(path: string) {

@@ -13,7 +13,6 @@ import type { Stock, MarketData } from "../../types/stock";
 import { AuthContext } from "../../Context/AuthContext";
 import { FiLogOut } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
-import { ApiError } from "../../errors/ApiError";
 
 export default function Home() {
   const [stock, setStock] = useState<Stock[]>([]);
@@ -40,17 +39,7 @@ export default function Home() {
         setFavorites(favs);
         setStock(stockData);
         setMarketData(market);
-      } catch (error) {
-        if (error instanceof ApiError) {
-          console.log(
-            "Erro da API:",
-            error.message,
-            "| Status: ",
-            error.status,
-          );
-        } else {
-          console.log("Erro desconhecido: ", error);
-        }
+      } catch {
         setError("Erro ao carregar as ações.");
       } finally {
         setIsLoading(false);
