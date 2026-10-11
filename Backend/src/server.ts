@@ -13,6 +13,7 @@ app.use(
       "http://localhost:5173",
       "https://plataforma-de-analise-acoes-i3fq.vercel.app",
     ],
+    exposedHeaders: "retry-after",
   }),
 );
 

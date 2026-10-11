@@ -13,5 +13,11 @@ export function globalErrorHandler(
 
   console.error(`[API Error] [${context}] Status ${status} - ${message}`);
 
+  const retryAfter = err?.response?.headers?.["retry-after"];
+
+  if (retryAfter) {
+    res.set("retry-after", retryAfter);
+  }
+
   return res.status(status).json({ error: message });
 }
