@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { ApiError } from "../errors/ApiError";
 import type { Stock, MarketData } from "../types/stock";
 
 const TICKERS = [
@@ -23,11 +24,7 @@ const TICKERS = [
 export async function fetchStocks(): Promise<Stock[]> {
   const results = await Promise.all(
     TICKERS.map((ticker) =>
-      fetch(`${import.meta.env.VITE_API_URL}/stock/${ticker}`, {
-        headers: {
-          "x-api-key": import.meta.env.VITE_API_KEY,
-        },
-      }).then((response) => response.json().then((data) => data.results[0])),
+      apiRequest(`/stock/${ticker}`).then((data) => data.results[0]),
     ),
   );
 
@@ -36,19 +33,7 @@ export async function fetchStocks(): Promise<Stock[]> {
 
 // Função para chamar as informações ibovespa e dolar
 export async function fetchMarketData(): Promise<MarketData> {
-  const data = await fetch(`${import.meta.env.VITE_API_URL}/market`, {
-    headers: {
-      "x-api-key": import.meta.env.VITE_API_KEY,
-    },
-  }).then((response) => response.json());
-
-  return {
-    ibovespa: data.ibovespa,
-    ibovespaChange: data.ibovespaChange,
-    dolar: data.dolar,
-    dolarChange: data.dolarChange,
-    volume: data.volume,
-  };
+  return apiRequest("/market");
 }
 
 export async function fetchStockDetail(
@@ -115,4 +100,29 @@ export async function searchStock(ticker: string): Promise<Stock> {
   const data = await response.json();
 
   return data.results[0];
+}
+
+async function apiRequest(path: string) {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
+    headers: {
+      "x-api-key": import.meta.env.VITE_API_KEY,
+    },
+  });
+
+  if (!response.ok) {
+    let mensagem = "Erro desconhecido ao realizar a requisição.";
+
+    try {
+      const data = (await response.json()) as { error?: string };
+      if (data.error) {
+        mensagem = data.error;
+      }
+    } catch {
+      // não faz nada: continua valendo a mensagem padrão
+    }
+
+    throw new ApiError(mensagem, response.status);
+  }
+
+  return response.json();
 }
