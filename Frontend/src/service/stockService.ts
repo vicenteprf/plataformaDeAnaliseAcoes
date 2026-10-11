@@ -2,7 +2,7 @@ import { supabase } from "../lib/supabase";
 import { ApiError } from "../errors/ApiError";
 import type { Stock, MarketData } from "../types/stock";
 
-const TICKERS = [
+export const TICKERS = [
   "TAEE4",
   "BBAS3",
   "CSMG3",
@@ -21,9 +21,9 @@ const TICKERS = [
 ];
 
 // Função para chamar as informações das ações
-export async function fetchStocks(): Promise<Stock[]> {
+export async function fetchStocks(tickers: string[]): Promise<Stock[]> {
   const results = await Promise.all(
-    TICKERS.map((ticker) =>
+    tickers.map((ticker) =>
       apiRequest(`/stock/${ticker}`).then((data) => data.results[0]),
     ),
   );
