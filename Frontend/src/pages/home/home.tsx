@@ -30,8 +30,10 @@ export default function Home() {
   const { user } = useContext(AuthContext);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const userId = user!.id;
+ 
 
   useEffect(() => {
     async function loadStocks() {
@@ -67,9 +69,11 @@ export default function Home() {
     if (valor.trim().length === 0) {
       setError(null);
       setIsLoading(true);
+      setIsSearching(false);
       try {
-        const stockData = await fetchStocks(TICKERS);
+        const stockData = await fetchStocks(tickersHome);
         setStock(stockData);
+        setVisibleCount(itensPorPagina);
       } catch {
         setError("Erro ao restaurar a lista de ações.");
       } finally {
@@ -87,6 +91,7 @@ export default function Home() {
         return;
       }
       setError(null);
+      setIsSearching(true);
       setStock([data]);
     } catch (e) {
       setError("Erro ao buscar ação.");
@@ -359,7 +364,7 @@ export default function Home() {
               </table>
 
               <div className="flex justify-center p-4">
-                {visibleCount < TICKERS.length && (
+                {visibleCount < TICKERS.length && !isSearching && (
                   <button
                     onClick={handleLoadMore}
                     disabled={isLoadingMore}
