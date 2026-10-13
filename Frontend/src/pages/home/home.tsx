@@ -33,7 +33,6 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
 
   const userId = user!.id;
- 
 
   useEffect(() => {
     async function loadStocks() {
@@ -68,16 +67,18 @@ export default function Home() {
 
     if (valor.trim().length === 0) {
       setError(null);
-      setIsLoading(true);
-      setIsSearching(false);
-      try {
-        const stockData = await fetchStocks(tickersHome);
-        setStock(stockData);
-        setVisibleCount(itensPorPagina);
-      } catch {
-        setError("Erro ao restaurar a lista de ações.");
-      } finally {
-        setIsLoading(false);
+      if (isSearching) {
+        setIsLoading(true);
+        try {
+          const stockData = await fetchStocks(tickersHome);
+          setStock(stockData);
+          setVisibleCount(itensPorPagina);
+          setIsSearching(false);
+        } catch {
+          setError("Erro ao restaurar a lista de ações.");
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
   }
