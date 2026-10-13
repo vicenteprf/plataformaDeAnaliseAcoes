@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { ApiError } from "../errors/ApiError";
-import type { Stock, MarketData } from "../types/stock";
+import type { Stock, MarketData, fetchStocksResponse } from "../types/stock";
 
 export const TICKERS = [
   "TAEE4",
@@ -21,14 +21,32 @@ export const TICKERS = [
 ];
 
 // Função para chamar as informações das ações
-export async function fetchStocks(tickers: string[]): Promise<Stock[]> {
-  const results = await Promise.all(
-    tickers.map((ticker) =>
-      apiRequest(`/stock/${ticker}`).then((data) => data.results[0]),
-    ),
-  );
+export async function fetchStocks(
+  tickers: string[],
+): Promise<fetchStocksResponse> {
+  const results: Stock[] = [];
+  const failed: string[] = [];
 
-  return results;
+  for (const ticker of tickers) {
+    try {
+      const data = await apiRequest(`/stock/${ticker}`);
+
+      if (data?.results?.[0]) {
+        results.push(data.results[0]);
+      } else {
+        console.warn(`O ticker ${ticker} retornou uma lista vazia .`);
+        failed.push(ticker);
+      }
+    } catch (e) {
+      console.error(`Erro ao buscar o ticker ${ticker}:`, e);
+      failed.push(ticker);
+    }
+  }
+
+  return {
+    results,
+    failed,
+  };
 }
 
 // Função para chamar as informações ibovespa e dolar

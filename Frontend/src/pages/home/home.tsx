@@ -42,8 +42,10 @@ export default function Home() {
           fetchStocks(tickersHome),
           fetchMarketData(),
         ]);
+        if (stockData.failed.length > 0)
+          setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
         setFavorites(favs);
-        setStock(stockData);
+        setStock(stockData.results);
         setMarketData(market);
       } catch {
         setError("Erro ao carregar as ações.");
@@ -71,7 +73,7 @@ export default function Home() {
         setIsLoading(true);
         try {
           const stockData = await fetchStocks(tickersHome);
-          setStock(stockData);
+          setStock(stockData.results);
           setVisibleCount(itensPorPagina);
           setIsSearching(false);
         } catch {
@@ -120,7 +122,7 @@ export default function Home() {
         visibleCount + itensPorPagina,
       );
       const newStocks = await fetchStocks(tickers);
-      setStock((prev) => [...prev, ...newStocks]);
+      setStock((prev) => [...prev, ...newStocks.results]);
       setVisibleCount((prev) => prev + itensPorPagina);
     } catch {
       setError("Erro ao carregar mais ações.");
