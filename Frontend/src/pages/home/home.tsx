@@ -38,12 +38,19 @@ export default function Home() {
     async function loadStocks() {
       try {
         const favs = await fetchFavorites(userId);
+
         const [stockData, market] = await Promise.all([
           fetchStocks(tickersHome),
           fetchMarketData(),
         ]);
-        if (stockData.failed.length > 0)
+
+        if (stockData.failed.length >= tickersHome.length)
+          setError(
+            "Não foi possível carregar as ações. Tente novamente em instantes.",
+          );
+        else if (stockData.failed.length > 0)
           setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
+
         setFavorites(favs);
         setStock(stockData.results);
         setMarketData(market);
