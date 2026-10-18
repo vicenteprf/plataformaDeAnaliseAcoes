@@ -121,7 +121,6 @@ export default function Home() {
   }
 
   async function handleLoadMore() {
-    setError(null);
     setIsLoadingMore(true);
     try {
       const tickers = TICKERS.slice(
@@ -129,6 +128,15 @@ export default function Home() {
         visibleCount + itensPorPagina,
       );
       const newStocks = await fetchStocks(tickers);
+      setError(null);
+
+      if (newStocks.failed.length >= tickers.length)
+        setError(
+          "Não foi possível carregar as ações. Tente novamente em instantes.",
+        );
+      else if (newStocks.failed.length > 0)
+        setError(`Erro ao carregar a ação ${newStocks.failed.join(", ")}.`);
+
       setStock((prev) => [...prev, ...newStocks.results]);
       setVisibleCount((prev) => prev + itensPorPagina);
     } catch {
