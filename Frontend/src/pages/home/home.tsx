@@ -80,6 +80,14 @@ export default function Home() {
         setIsLoading(true);
         try {
           const stockData = await fetchStocks(tickersHome);
+
+          if (stockData.failed.length >= tickersHome.length)
+            setError(
+              "Não foi possível carregar as ações. Tente novamente em instantes.",
+            );
+          else if (stockData.failed.length > 0)
+            setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
+
           setStock(stockData.results);
           setVisibleCount(itensPorPagina);
           setIsSearching(false);
