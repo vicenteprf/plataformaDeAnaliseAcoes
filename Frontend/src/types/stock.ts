@@ -37,3 +37,8 @@ export interface MarketData {
   dolarChange: number;
   volume: number;
 }
+
+export interface fetchStocksResponse {
+  results: Stock[];
+  failed: string[];
+}

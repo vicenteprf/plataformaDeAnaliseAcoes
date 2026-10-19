@@ -8,11 +8,15 @@ import {
   addFavorite,
   removeFavorite,
   searchStock,
+  TICKERS,
 } from "../../service/stockService";
 import type { Stock, MarketData } from "../../types/stock";
 import { AuthContext } from "../../Context/AuthContext";
 import { FiLogOut } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
+
+const itensPorPagina = 5;
+const tickersHome = TICKERS.slice(0, itensPorPagina);
 
 export default function Home() {
   const [stock, setStock] = useState<Stock[]>([]);
@@ -21,10 +25,12 @@ export default function Home() {
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const [pesquisa, setPesquisa] = useState("");
   const [filter, setFilter] = useState("Todas");
-  const [visibleCount, setVisibleCount] = useState(5);
+  const [visibleCount, setVisibleCount] = useState(itensPorPagina);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const userId = user!.id;
 
@@ -32,12 +38,21 @@ export default function Home() {
     async function loadStocks() {
       try {
         const favs = await fetchFavorites(userId);
+
         const [stockData, market] = await Promise.all([
-          fetchStocks(),
+          fetchStocks(tickersHome),
           fetchMarketData(),
         ]);
+
+        if (stockData.failed.length >= tickersHome.length)
+          setError(
+            "Não foi possível carregar as ações. Tente novamente em instantes.",
+          );
+        else if (stockData.failed.length > 0)
+          setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
+
         setFavorites(favs);
-        setStock(stockData);
+        setStock(stockData.results);
         setMarketData(market);
       } catch {
         setError("Erro ao carregar as ações.");
@@ -61,14 +76,26 @@ export default function Home() {
 
     if (valor.trim().length === 0) {
       setError(null);
-      setIsLoading(true);
-      try {
-        const stockData = await fetchStocks();
-        setStock(stockData);
-      } catch {
-        setError("Erro ao restaurar a lista de ações.");
-      } finally {
-        setIsLoading(false);
+      if (isSearching) {
+        setIsLoading(true);
+        try {
+          const stockData = await fetchStocks(tickersHome);
+
+          if (stockData.failed.length >= tickersHome.length)
+            setError(
+              "Não foi possível carregar as ações. Tente novamente em instantes.",
+            );
+          else if (stockData.failed.length > 0)
+            setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
+
+          setStock(stockData.results);
+          setVisibleCount(itensPorPagina);
+          setIsSearching(false);
+        } catch {
+          setError("Erro ao restaurar a lista de ações.");
+        } finally {
+          setIsLoading(false);
+        }
       }
     }
   }
@@ -82,6 +109,7 @@ export default function Home() {
         return;
       }
       setError(null);
+      setIsSearching(true);
       setStock([data]);
     } catch (e) {
       setError("Erro ao buscar ação.");
@@ -97,6 +125,32 @@ export default function Home() {
     } else {
       await addFavorite(user.id, ticker);
       setFavorites((prev) => [...prev, ticker]);
+    }
+  }
+
+  async function handleLoadMore() {
+    setIsLoadingMore(true);
+    try {
+      const tickers = TICKERS.slice(
+        visibleCount,
+        visibleCount + itensPorPagina,
+      );
+      const newStocks = await fetchStocks(tickers);
+      setError(null);
+
+      if (newStocks.failed.length >= tickers.length)
+        setError(
+          "Não foi possível carregar as ações. Tente novamente em instantes.",
+        );
+      else if (newStocks.failed.length > 0)
+        setError(`Erro ao carregar a ação ${newStocks.failed.join(", ")}.`);
+
+      setStock((prev) => [...prev, ...newStocks.results]);
+      setVisibleCount((prev) => prev + itensPorPagina);
+    } catch {
+      setError("Erro ao carregar mais ações.");
+    } finally {
+      setIsLoadingMore(false);
     }
   }
 
@@ -336,16 +390,13 @@ export default function Home() {
               </table>
 
               <div className="flex justify-center p-4">
-                {visibleCount < stock.length && (
+                {visibleCount < TICKERS.length && !isSearching && (
                   <button
-                    onClick={() =>
-                      setVisibleCount((prev) =>
-                        Math.min(prev + 5, stock.length),
-                      )
-                    }
-                    className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-blue-700 transition"
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer"
                   >
-                    Carregar mais
+                    {isLoadingMore ? "Carregando..." : "Carregar mais"}
                   </button>
                 )}
               </div>
