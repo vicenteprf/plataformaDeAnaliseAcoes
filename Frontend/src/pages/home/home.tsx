@@ -22,6 +22,7 @@ export default function Home() {
   const [stock, setStock] = useState<Stock[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [marketError, setMarketError] = useState<string | null>(null);
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const [pesquisa, setPesquisa] = useState("");
   const [filter, setFilter] = useState("Todas");
@@ -39,10 +40,7 @@ export default function Home() {
       try {
         const favs = await fetchFavorites(userId);
 
-        const [stockData, market] = await Promise.all([
-          fetchStocks(tickersHome),
-          fetchMarketData(),
-        ]);
+        const stockData = await fetchStocks(tickersHome);
 
         if (stockData.failed.length >= tickersHome.length)
           setError(
@@ -53,11 +51,19 @@ export default function Home() {
 
         setFavorites(favs);
         setStock(stockData.results);
-        setMarketData(market);
       } catch {
         setError("Erro ao carregar as ações.");
       } finally {
         setIsLoading(false);
+      }
+
+      try {
+        const market = await fetchMarketData();
+
+        setMarketData(market);
+      } catch (e) {
+        console.error("Erro ao buscar dados do mercado", e);
+        setMarketError("Erro ao carregar os dados do mercado.");
       }
     }
 
@@ -202,65 +208,69 @@ export default function Home() {
 
       <div className="mx-auto max-w-7xl px-4 py-6">
         {/* Cards de mercado — 2 colunas no mobile, 5 no desktop */}
-        <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">
-              IBOVESPA
-            </p>
-            <h2 className="mt-2 text-xl font-bold text-white sm:text-3xl">
-              {marketData?.ibovespa?.toLocaleString("pt-BR") ?? "..."}
-            </h2>
-          </div>
+        {marketError ? (
+          <p className="p-4 m-4 text-center text-red-400">{marketError}</p>
+        ) : (
+          <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
+              <p className="text-xs uppercase tracking-wide text-zinc-500">
+                IBOVESPA
+              </p>
+              <h2 className="mt-2 text-xl font-bold text-white sm:text-3xl">
+                {marketData?.ibovespa?.toLocaleString("pt-BR") ?? "..."}
+              </h2>
+            </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">
-              Variação hoje
-            </p>
-            <h2
-              className={`mt-2 text-xl font-bold sm:text-3xl ${
-                marketData?.ibovespaChange !== undefined &&
-                marketData.ibovespaChange >= 0
-                  ? "text-lime-400"
-                  : "text-red-400"
-              }`}
-            >
-              {marketData
-                ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData?.ibovespaChange?.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
-                : "..."}
-            </h2>
-          </div>
+            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
+              <p className="text-xs uppercase tracking-wide text-zinc-500">
+                Variação hoje
+              </p>
+              <h2
+                className={`mt-2 text-xl font-bold sm:text-3xl ${
+                  marketData?.ibovespaChange !== undefined &&
+                  marketData.ibovespaChange >= 0
+                    ? "text-lime-400"
+                    : "text-red-400"
+                }`}
+              >
+                {marketData
+                  ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData?.ibovespaChange?.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+                  : "..."}
+              </h2>
+            </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">
-              Vol. negociado
-            </p>
-            <h2 className="mt-2 text-xl font-bold sm:text-3xl">
-              {marketData
-                ? `R$ ${(marketData.volume / 1e9).toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}B`
-                : "..."}
-            </h2>
-          </div>
+            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
+              <p className="text-xs uppercase tracking-wide text-zinc-500">
+                Vol. negociado
+              </p>
+              <h2 className="mt-2 text-xl font-bold sm:text-3xl">
+                {marketData
+                  ? `R$ ${(marketData.volume / 1e9).toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}B`
+                  : "..."}
+              </h2>
+            </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">
-              Dólar (USD)
-            </p>
-            <h2 className="mt-2 text-xl font-bold text-white sm:text-3xl">
-              R${" "}
-              {marketData?.dolar?.toLocaleString("pt-br", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }) ?? "..."}
-            </h2>
-          </div>
+            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
+              <p className="text-xs uppercase tracking-wide text-zinc-500">
+                Dólar (USD)
+              </p>
+              <h2 className="mt-2 text-xl font-bold text-white sm:text-3xl">
+                R${" "}
+                {marketData?.dolar?.toLocaleString("pt-br", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                }) ?? "..."}
+              </h2>
+            </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">
-              Selic
-            </p>
-            <h2 className="mt-2 text-xl font-bold sm:text-3xl">14,25%</h2>
-          </div>
-        </section>
+            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
+              <p className="text-xs uppercase tracking-wide text-zinc-500">
+                Selic
+              </p>
+              <h2 className="mt-2 text-xl font-bold sm:text-3xl">13,75%</h2>
+            </div>
+          </section>
+        )}
 
         <div className="mt-6">
           <section className="rounded-2xl border border-zinc-800 bg-[#0B1020]">
