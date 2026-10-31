@@ -13,7 +13,7 @@ let detailCache: Record<string, { data: any; timestamp: number }> = {};
 let detailPending: Record<string, Promise<any>> = {};
 
 // Tempo de validade do cache: 1 minuto
-const CACHE_TTL = 60 * 1000;
+const CACHE_TTL = 60 * 10000;
 
 export async function getStockDetail(ticker: string, range: string) {
   // Chave única por ticker e período (ex: "PETR4-1mo")
