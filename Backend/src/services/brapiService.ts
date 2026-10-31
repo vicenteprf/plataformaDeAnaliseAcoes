@@ -5,8 +5,12 @@ const token = process.env.BRAPI_TOKEN;
 // Cache para dados do mercado (ibovespa + dólar)
 let marketCache: { data: any; timestamp: number } | null = null;
 
+let marketPending: Promise<any | null> | null = null;
+
 // Cache para detalhes de cada ação, indexado por ticker+range
 let detailCache: Record<string, { data: any; timestamp: number }> = {};
+
+let detailPending: Record<string, Promise<any>> = {};
 
 // Tempo de validade do cache: 1 minuto
 const CACHE_TTL = 60 * 1000;
@@ -22,6 +26,21 @@ export async function getStockDetail(ticker: string, range: string) {
   ) {
     return detailCache[cacheKey].data;
   }
+
+  if (detailPending[cacheKey]) return detailPending[cacheKey];
+
+  detailPending[cacheKey] = getDetailBrapi(ticker, range);
+
+  try {
+    return await detailPending[cacheKey];
+  } finally {
+    delete detailPending[cacheKey];
+  }
+}
+
+async function getDetailBrapi(ticker: string, range: string) {
+  // Chave única por ticker e período (ex: "PETR4-1mo")
+  const cacheKey = `${ticker}-${range}`;
 
   // Busca da brapi e salva no cache
   const detail = await axios.get(
@@ -44,10 +63,24 @@ export async function getStockList() {
 
 export async function getMarketData() {
   // Retorna do cache se ainda estiver válido
-  if (marketCache && Date.now() - marketCache.timestamp < CACHE_TTL) {
+  if (marketCache && Date.now() - marketCache.timestamp < CACHE_TTL)
     return marketCache.data;
-  }
 
+  // Se já existe um pedido em andamento, reaproveita a promessa
+  if (marketPending) return marketPending;
+
+  // Inicia a busca sem await e armazena a promessa em marketPending
+  marketPending = getMarketBrapi();
+
+  // Aguarda a promessa resolver no try e garante a limpeza no finally
+  try {
+    return await marketPending;
+  } finally {
+    marketPending = null;
+  }
+}
+
+async function getMarketBrapi() {
   // Busca ibovespa
   const ibovespaRes = await axios.get(
     `https://brapi.dev/api/quote/%5EBVSP?token=${token}`,
