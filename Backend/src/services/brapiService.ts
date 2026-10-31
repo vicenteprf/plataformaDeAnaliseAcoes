@@ -48,11 +48,15 @@ export async function getMarketData() {
     return marketCache.data;
   }
 
-  // Busca ibovespa e dólar em paralelo
-  const [ibovespaRes, dolarRes] = await Promise.all([
-    axios.get(`https://brapi.dev/api/quote/%5EBVSP?token=${token}`),
-    axios.get(`https://brapi.dev/api/quote/USDBRL=X?token=${token}`),
-  ]);
+  // Busca ibovespa
+  const ibovespaRes = await axios.get(
+    `https://brapi.dev/api/quote/%5EBVSP?token=${token}`,
+  );
+
+  // Busca do dolar
+  const dolarRes = await axios.get(
+    `https://brapi.dev/api/quote/USDBRL=X?token=${token}`,
+  );
 
   // Formata o resultado e salva no cache
   const result = {
