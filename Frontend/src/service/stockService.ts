@@ -2,6 +2,11 @@ import { supabase } from "../lib/supabase";
 import { ApiError } from "../errors/ApiError";
 import type { Stock, MarketData, fetchStocksResponse } from "../types/stock";
 
+// Tempo de validade do cache: 5 minuto
+const CACHE_TTL = 5 * 60 * 1000;
+
+const stockCache: Record<string, { data: Stock; timestamp: number }> = {};
+
 export const TICKERS = [
   "TAEE4",
   "BBAS3",
@@ -29,9 +34,18 @@ export async function fetchStocks(
 
   for (const ticker of tickers) {
     try {
+      if (
+        stockCache[ticker] &&
+        Date.now() - stockCache[ticker].timestamp < CACHE_TTL
+      ) {
+        results.push(stockCache[ticker].data);
+        continue;
+      }
+
       const data = await apiRequest(`/stock/${ticker}`);
 
       if (data?.results?.[0]) {
+        stockCache[ticker] = { data: data.results[0], timestamp: Date.now() };
         results.push(data.results[0]);
       } else {
         console.warn(`O ticker ${ticker} retornou uma lista vazia .`);
