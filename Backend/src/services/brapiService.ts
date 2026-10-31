@@ -10,6 +10,8 @@ let marketPending: Promise<any | null> | null = null;
 // Cache para detalhes de cada ação, indexado por ticker+range
 let detailCache: Record<string, { data: any; timestamp: number }> = {};
 
+let detailPending: Record<string, Promise<any>> = {};
+
 // Tempo de validade do cache: 1 minuto
 const CACHE_TTL = 60 * 1000;
 
@@ -24,6 +26,21 @@ export async function getStockDetail(ticker: string, range: string) {
   ) {
     return detailCache[cacheKey].data;
   }
+
+  if (detailPending[cacheKey]) return detailPending[cacheKey];
+
+  detailPending[cacheKey] = getDetailBrapi(ticker, range);
+
+  try {
+    return await detailPending[cacheKey];
+  } finally {
+    delete detailPending[cacheKey];
+  }
+}
+
+async function getDetailBrapi(ticker: string, range: string) {
+  // Chave única por ticker e período (ex: "PETR4-1mo")
+  const cacheKey = `${ticker}-${range}`;
 
   // Busca da brapi e salva no cache
   const detail = await axios.get(
