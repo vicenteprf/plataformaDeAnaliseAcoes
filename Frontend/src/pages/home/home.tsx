@@ -207,11 +207,11 @@ export default function Home() {
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
-        {/* Cards de mercado — 2 colunas no mobile, 5 no desktop */}
+        {/* Cards de mercado — 2 colunas no mobile, 4 no desktop */}
         {marketError ? (
           <p className="p-4 m-4 text-center text-red-400">{marketError}</p>
         ) : (
-          <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
               <p className="text-xs uppercase tracking-wide text-zinc-500">
                 IBOVESPA
@@ -235,17 +235,6 @@ export default function Home() {
               >
                 {marketData
                   ? `${marketData.ibovespaChange >= 0 ? "+" : ""}${marketData?.ibovespaChange?.toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
-                  : "..."}
-              </h2>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
-              <p className="text-xs uppercase tracking-wide text-zinc-500">
-                Vol. negociado
-              </p>
-              <h2 className="mt-2 text-xl font-bold sm:text-3xl">
-                {marketData
-                  ? `R$ ${(marketData.volume / 1e9).toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}B`
                   : "..."}
               </h2>
             </div>
