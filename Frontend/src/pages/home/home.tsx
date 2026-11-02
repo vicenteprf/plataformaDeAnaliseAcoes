@@ -322,13 +322,15 @@ export default function Home() {
                   type="text"
                   name="text"
                   placeholder="Buscar ticker..."
-                  className="h-12 flex-1 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-white outline-none focus:border-blue-500"
+                  className="h-12 flex-1 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-white outline-none focus:border-blue-500 disabled:opacity-50"
                   onChange={handlePesquisa}
+                  disabled={isLoading || isLoadingMore}
                   value={pesquisa}
                 />
                 <button
+                  disabled={isLoading || isLoadingMore}
                   onClick={handleSearch}
-                  className="h-12 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-sm text-zinc-300 cursor-pointer font-bold hover:bg-blue-600 whitespace-nowrap"
+                  className="h-12 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-sm text-zinc-300 cursor-pointer font-bold enabled:hover:bg-blue-600 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   Buscar
                 </button>
