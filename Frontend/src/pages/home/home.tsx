@@ -165,6 +165,28 @@ export default function Home() {
     }
   }
 
+  async function handleRetry() {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const stockData = await fetchStocks(tickersHome);
+
+      if (stockData.failed.length >= tickersHome.length)
+        setError(
+          "Não foi possível carregar as ações. Tente novamente em instantes.",
+        );
+      else if (stockData.failed.length > 0)
+        setError(`Não foi possível carregar: ${stockData.failed.join(", ")}.`);
+
+      setStock(stockData.results);
+      setVisibleCount(itensPorPagina);
+    } catch {
+      setError("Erro ao carregar as ações.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#050816] text-white">
       <header className="border-b border-zinc-900 bg-[#070B17]">
@@ -394,14 +416,25 @@ export default function Home() {
               </table>
 
               <div className="flex justify-center p-4">
-                {visibleCount < TICKERS.length && !isSearching && (
+                {!stock.length && !isLoading && !isSearching ? (
                   <button
-                    onClick={handleLoadMore}
-                    disabled={isLoadingMore}
+                    onClick={handleRetry}
                     className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer"
                   >
-                    {isLoadingMore ? "Carregando..." : "Carregar mais"}
+                    Tentar novamente
                   </button>
+                ) : (
+                  visibleCount < TICKERS.length &&
+                  !isSearching &&
+                  stock.length > 0 && (
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={isLoadingMore}
+                      className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer"
+                    >
+                      {isLoadingMore ? "Carregando..." : "Carregar mais"}
+                    </button>
+                  )
                 )}
               </div>
             </div>
