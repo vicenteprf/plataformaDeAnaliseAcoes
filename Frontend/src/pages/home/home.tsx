@@ -14,6 +14,7 @@ import type { Stock, MarketData } from "../../types/stock";
 import { AuthContext } from "../../Context/AuthContext";
 import { FiLogOut } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
+import { selic } from "../../constants";
 
 const itensPorPagina = 5;
 const tickersHome = TICKERS.slice(0, itensPorPagina);
@@ -260,7 +261,7 @@ export default function Home() {
               <p className="text-xs uppercase tracking-wide text-zinc-500">
                 Selic
               </p>
-              <h2 className="mt-2 text-xl font-bold sm:text-3xl">13,75%</h2>
+              <h2 className="mt-2 text-xl font-bold sm:text-3xl">{selic}</h2>
             </div>
           </section>
         )}
