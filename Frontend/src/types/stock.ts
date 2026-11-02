@@ -35,7 +35,6 @@ export interface MarketData {
   ibovespaChange: number;
   dolar: number;
   dolarChange: number;
-  volume: number;
 }
 
 export interface fetchStocksResponse {

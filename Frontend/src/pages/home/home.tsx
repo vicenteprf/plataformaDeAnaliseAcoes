@@ -14,12 +14,14 @@ import type { Stock, MarketData } from "../../types/stock";
 import { AuthContext } from "../../Context/AuthContext";
 import { FiLogOut } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
+import { selic } from "../../constants";
 
 const itensPorPagina = 5;
 const tickersHome = TICKERS.slice(0, itensPorPagina);
 
 export default function Home() {
   const [stock, setStock] = useState<Stock[]>([]);
+  const [failedTickers, setFailedTickers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [marketError, setMarketError] = useState<string | null>(null);
@@ -47,8 +49,10 @@ export default function Home() {
             "Não foi possível carregar as ações. Tente novamente em instantes.",
           );
         else if (stockData.failed.length > 0)
-          setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
-
+          setError(
+            `Não foi possível carregar: ${stockData.failed.join(", ")}.`,
+          );
+        setFailedTickers(stockData.failed);
         setFavorites(favs);
         setStock(stockData.results);
       } catch {
@@ -92,8 +96,11 @@ export default function Home() {
               "Não foi possível carregar as ações. Tente novamente em instantes.",
             );
           else if (stockData.failed.length > 0)
-            setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
+            setError(
+              `Não foi possível carregar: ${stockData.failed.join(", ")}.`,
+            );
 
+          setFailedTickers(stockData.failed);
           setStock(stockData.results);
           setVisibleCount(itensPorPagina);
           setIsSearching(false);
@@ -144,19 +151,64 @@ export default function Home() {
       const newStocks = await fetchStocks(tickers);
       setError(null);
 
+      const failed = [...failedTickers, ...newStocks.failed];
+
       if (newStocks.failed.length >= tickers.length)
         setError(
           "Não foi possível carregar as ações. Tente novamente em instantes.",
         );
       else if (newStocks.failed.length > 0)
-        setError(`Erro ao carregar a ação ${newStocks.failed.join(", ")}.`);
+        setError(`Não foi possível carregar: ${failed.join(", ")}.`);
 
+      setFailedTickers(failed);
       setStock((prev) => [...prev, ...newStocks.results]);
       setVisibleCount((prev) => prev + itensPorPagina);
     } catch {
       setError("Erro ao carregar mais ações.");
     } finally {
       setIsLoadingMore(false);
+    }
+  }
+
+  async function handleRetry() {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const stockData = await fetchStocks(tickersHome);
+
+      if (stockData.failed.length >= tickersHome.length)
+        setError(
+          "Não foi possível carregar as ações. Tente novamente em instantes.",
+        );
+      else if (stockData.failed.length > 0)
+        setError(`Não foi possível carregar: ${stockData.failed.join(", ")}.`);
+
+      setFailedTickers(stockData.failed);
+      setStock(stockData.results);
+      setVisibleCount(itensPorPagina);
+    } catch {
+      setError("Erro ao carregar as ações.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleRetryFailed() {
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetchStocks(failedTickers);
+
+      if (response.failed.length > 0)
+        setError(`Não foi possível carregar: ${response.failed.join(", ")}.`);
+
+      setStock((prev) => [...prev, ...response.results]);
+      setFailedTickers(response.failed);
+    } catch {
+      setError("Erro ao carregar as ações.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -207,11 +259,11 @@ export default function Home() {
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-6">
-        {/* Cards de mercado — 2 colunas no mobile, 5 no desktop */}
+        {/* Cards de mercado — 2 colunas no mobile, 4 no desktop */}
         {marketError ? (
           <p className="p-4 m-4 text-center text-red-400">{marketError}</p>
         ) : (
-          <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
               <p className="text-xs uppercase tracking-wide text-zinc-500">
                 IBOVESPA
@@ -241,17 +293,6 @@ export default function Home() {
 
             <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
               <p className="text-xs uppercase tracking-wide text-zinc-500">
-                Vol. negociado
-              </p>
-              <h2 className="mt-2 text-xl font-bold sm:text-3xl">
-                {marketData
-                  ? `R$ ${(marketData.volume / 1e9).toLocaleString("pt-br", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}B`
-                  : "..."}
-              </h2>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-800 bg-[#0B1020] p-4">
-              <p className="text-xs uppercase tracking-wide text-zinc-500">
                 Dólar (USD)
               </p>
               <h2 className="mt-2 text-xl font-bold text-white sm:text-3xl">
@@ -267,7 +308,7 @@ export default function Home() {
               <p className="text-xs uppercase tracking-wide text-zinc-500">
                 Selic
               </p>
-              <h2 className="mt-2 text-xl font-bold sm:text-3xl">13,75%</h2>
+              <h2 className="mt-2 text-xl font-bold sm:text-3xl">{selic}</h2>
             </div>
           </section>
         )}
@@ -281,13 +322,15 @@ export default function Home() {
                   type="text"
                   name="text"
                   placeholder="Buscar ticker..."
-                  className="h-12 flex-1 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-white outline-none focus:border-blue-500"
+                  className="h-12 flex-1 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-white outline-none focus:border-blue-500 disabled:opacity-50"
                   onChange={handlePesquisa}
+                  disabled={isLoading || isLoadingMore}
                   value={pesquisa}
                 />
                 <button
+                  disabled={isLoading || isLoadingMore}
                   onClick={handleSearch}
-                  className="h-12 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-sm text-zinc-300 cursor-pointer font-bold hover:bg-blue-600 whitespace-nowrap"
+                  className="h-12 rounded-xl border border-zinc-700 bg-[#111827] px-4 text-sm text-zinc-300 cursor-pointer font-bold enabled:hover:bg-blue-600 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   Buscar
                 </button>
@@ -334,7 +377,19 @@ export default function Home() {
                   {error && (
                     <tr>
                       <td colSpan={4} className="p-4 text-center text-red-400">
-                        {error}
+                        <div className="flex flex-col justify-center items-center">
+                          {error}
+                          {failedTickers.length > 0 &&
+                            !isSearching &&
+                            stock.length > 0 && (
+                              <button
+                                onClick={handleRetryFailed}
+                                className="rounded-xl bg-blue-600 mt-2 px-5 py-3 text-white text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer"
+                              >
+                                Tentar novamente
+                              </button>
+                            )}
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -400,14 +455,25 @@ export default function Home() {
               </table>
 
               <div className="flex justify-center p-4">
-                {visibleCount < TICKERS.length && !isSearching && (
+                {!stock.length && !isLoading && !isSearching ? (
                   <button
-                    onClick={handleLoadMore}
-                    disabled={isLoadingMore}
+                    onClick={handleRetry}
                     className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer"
                   >
-                    {isLoadingMore ? "Carregando..." : "Carregar mais"}
+                    Tentar novamente
                   </button>
+                ) : (
+                  visibleCount < TICKERS.length &&
+                  !isSearching &&
+                  stock.length > 0 && (
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={isLoadingMore}
+                      className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer"
+                    >
+                      {isLoadingMore ? "Carregando..." : "Carregar mais"}
+                    </button>
+                  )
                 )}
               </div>
             </div>

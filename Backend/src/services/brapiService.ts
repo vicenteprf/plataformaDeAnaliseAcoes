@@ -97,7 +97,6 @@ async function getMarketBrapi() {
     ibovespaChange: ibovespaRes.data.results[0].regularMarketChangePercent,
     dolar: dolarRes.data.results[0].regularMarketPrice,
     dolarChange: dolarRes.data.results[0].regularMarketChangePercent,
-    volume: ibovespaRes.data.results[0].regularMarketVolume,
   };
 
   // Salva resultado no cache com o timestamp atual

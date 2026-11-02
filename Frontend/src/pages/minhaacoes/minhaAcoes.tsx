@@ -16,6 +16,7 @@ import { AuthContext } from "../../Context/AuthContext";
 
 import { FiLogOut } from "react-icons/fi";
 import { FaStar, FaRegStar } from "react-icons/fa";
+import { selic } from "../../constants";
 
 export default function MinhasAcoes() {
   const [stock, setStock] = useState<Stock[]>([]);
@@ -164,7 +165,7 @@ export default function MinhasAcoes() {
             <p className="text-xs uppercase tracking-wide text-zinc-500">
               Selic
             </p>
-            <h2 className="mt-2 text-xl font-bold sm:text-3xl">14,25%</h2>
+            <h2 className="mt-2 text-xl font-bold sm:text-3xl">{selic}</h2>
           </div>
         </section>
 
