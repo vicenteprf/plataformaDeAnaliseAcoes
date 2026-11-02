@@ -47,7 +47,9 @@ export default function Home() {
             "Não foi possível carregar as ações. Tente novamente em instantes.",
           );
         else if (stockData.failed.length > 0)
-          setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
+          setError(
+            `Não foi possível carregar: ${stockData.failed.join(", ")}.`,
+          );
 
         setFavorites(favs);
         setStock(stockData.results);
@@ -92,7 +94,9 @@ export default function Home() {
               "Não foi possível carregar as ações. Tente novamente em instantes.",
             );
           else if (stockData.failed.length > 0)
-            setError(`Erro ao carregar a ação ${stockData.failed.join(", ")}.`);
+            setError(
+              `Não foi possível carregar: ${stockData.failed.join(", ")}.`,
+            );
 
           setStock(stockData.results);
           setVisibleCount(itensPorPagina);
@@ -149,7 +153,7 @@ export default function Home() {
           "Não foi possível carregar as ações. Tente novamente em instantes.",
         );
       else if (newStocks.failed.length > 0)
-        setError(`Erro ao carregar a ação ${newStocks.failed.join(", ")}.`);
+        setError(`Não foi possível carregar: ${newStocks.failed.join(", ")}.`);
 
       setStock((prev) => [...prev, ...newStocks.results]);
       setVisibleCount((prev) => prev + itensPorPagina);
