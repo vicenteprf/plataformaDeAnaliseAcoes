@@ -21,6 +21,7 @@ const tickersHome = TICKERS.slice(0, itensPorPagina);
 
 export default function Home() {
   const [stock, setStock] = useState<Stock[]>([]);
+  const [failedTickers, setFailedTickers] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [marketError, setMarketError] = useState<string | null>(null);
@@ -51,7 +52,7 @@ export default function Home() {
           setError(
             `Não foi possível carregar: ${stockData.failed.join(", ")}.`,
           );
-
+        setFailedTickers(stockData.failed);
         setFavorites(favs);
         setStock(stockData.results);
       } catch {
@@ -99,6 +100,7 @@ export default function Home() {
               `Não foi possível carregar: ${stockData.failed.join(", ")}.`,
             );
 
+          setFailedTickers(stockData.failed);
           setStock(stockData.results);
           setVisibleCount(itensPorPagina);
           setIsSearching(false);
@@ -149,13 +151,16 @@ export default function Home() {
       const newStocks = await fetchStocks(tickers);
       setError(null);
 
+      const failed = [...failedTickers, ...newStocks.failed];
+
       if (newStocks.failed.length >= tickers.length)
         setError(
           "Não foi possível carregar as ações. Tente novamente em instantes.",
         );
       else if (newStocks.failed.length > 0)
-        setError(`Não foi possível carregar: ${newStocks.failed.join(", ")}.`);
+        setError(`Não foi possível carregar: ${failed.join(", ")}.`);
 
+      setFailedTickers(failed);
       setStock((prev) => [...prev, ...newStocks.results]);
       setVisibleCount((prev) => prev + itensPorPagina);
     } catch {
@@ -178,8 +183,28 @@ export default function Home() {
       else if (stockData.failed.length > 0)
         setError(`Não foi possível carregar: ${stockData.failed.join(", ")}.`);
 
+      setFailedTickers(stockData.failed);
       setStock(stockData.results);
       setVisibleCount(itensPorPagina);
+    } catch {
+      setError("Erro ao carregar as ações.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleRetryFailed() {
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetchStocks(failedTickers);
+
+      if (response.failed.length > 0)
+        setError(`Não foi possível carregar: ${response.failed.join(", ")}.`);
+
+      setStock((prev) => [...prev, ...response.results]);
+      setFailedTickers(response.failed);
     } catch {
       setError("Erro ao carregar as ações.");
     } finally {
@@ -350,7 +375,19 @@ export default function Home() {
                   {error && (
                     <tr>
                       <td colSpan={4} className="p-4 text-center text-red-400">
-                        {error}
+                        <div className="flex flex-col justify-center items-center">
+                          {error}
+                          {failedTickers.length > 0 &&
+                            !isSearching &&
+                            stock.length > 0 && (
+                              <button
+                                onClick={handleRetryFailed}
+                                className="rounded-xl bg-blue-600 mt-2 px-5 py-3 text-white text-sm font-semibold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer"
+                              >
+                                Tentar novamente
+                              </button>
+                            )}
+                        </div>
                       </td>
                     </tr>
                   )}
